@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  credit-postgres:
+    image: postgres:16-alpine
+    container_name: credit-postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=credit_assignment_db
+      - POSTGRES_USER=platform_user
+      - POSTGRES_PASSWORD=platform_password
+    volumes:
+      - postgres_master_data:/var/lib/postgresql/data
+      # Executa automaticamente o script de criação de tabelas ao iniciar o container
+      - ./docs/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./docs/db/data.sql:/docker-entrypoint-initdb.d/data.sql
+
+volumes:
+  postgres_master_data:
