@@ -1,0 +1,5 @@
+rootProject.name = 'credit-assignment-platform'
+
+include 'credit-core-service'
+include 'credit-pricing-service'
+include 'credit-report-service'
