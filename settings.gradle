@@ -1,5 +1,16 @@
-rootProject.name = 'credit-assignment-platform'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
 
-include 'credit-core-service'
-include 'credit-pricing-service'
-include 'credit-report-service'
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'credit-assignment-platform'
