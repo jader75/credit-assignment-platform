@@ -1,0 +1,4 @@
+#!/bin/sh
+
+powershell -ExecutionPolicy Bypass -File ".githooks/pre-push.ps1"
+exit $?
