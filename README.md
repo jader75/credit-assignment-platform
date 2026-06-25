@@ -44,14 +44,25 @@ Plataforma em Java 21 para apoiar a cessao e a precificacao de direitos creditic
 O arquivo `backend/credit-engine/src/main/resources/db/migration/V1__create_base_schema.sql` define o schema inicial da solucao:
 
 - `currencies`
-- `currency_rates`
-- `product_types`
+- `exchange_rates`
+- `receivable_types`
 - `assignors`
+- `credit_batches`
 - `credit_assignments`
 
-Tambem ha indices para relatorios e consulta de cambio mais recente.
+Tambem ha indices para historico cambial, lote e consulta de liquidações.
 
 O `docker-compose.yml` sobe apenas o PostgreSQL. O schema fica a cargo do Flyway quando a aplicacao inicia.
+
+A documentação visual da modelagem está em [docs/diagrams/db/v1/README.md](docs/diagrams/db/v1/README.md) e o arquivo editável do diagrama está em [docs/diagrams/db/v1/credit-domain.drawio](docs/diagrams/db/v1/credit-domain.drawio).
+
+## Modelo do dominio
+
+- `credit_batches` representa o lote recebido pela plataforma
+- `credit_assignments` representa cada item do lote, com o snapshot de precificacao
+- `receivable_types` define o tipo do ativo e a regra base de spread
+- `exchange_rates` guarda o historico de cambio com origem da taxa
+- `assignors` guarda o cedente e seu rating atual
 
 ## Qualidade
 
@@ -95,15 +106,15 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - `application.yml`
   - Flyway
   - validação de conexão com Docker
+- **Story 004** - Modelagem do domínio
+  - lote de recebíveis
+  - item de cessão/liquidação
+  - câmbio
+  - tipos de recebível
+  - cedente
 
 ### Próximas stories
 
-- **Story 004** - Modelagem do domínio
-  - `Currency`
-  - `CurrencyRate`
-  - `ProductType`
-  - `Assignor`
-  - `CreditAssignment`
 - **Story 005** - Motor de precificação
   - `Strategy Pattern`
   - cálculo de valor presente
