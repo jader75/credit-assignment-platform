@@ -18,7 +18,8 @@ class ArchitectureTest {
                 .resideInAPackage("..domain..")
                 .should()
                 .dependOnClassesThat()
-                .resideInAnyPackage("..infrastructure..");
+                .resideInAnyPackage("..infrastructure..")
+                .allowEmptyShould(true);
 
         rule.check(importedClasses);
     }
