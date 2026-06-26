@@ -130,8 +130,47 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - câmbio
   - tipos de recebível
   - cedente
+- **Story 005** - Motor de precificação
+  - `Strategy Pattern`
+  - cálculo de valor presente
+  - spread por tipo de recebível
+  - conversão cross-currency
+- **Story 006** - Automação de qualidade e CI/CD
+  - pipeline de validação
+  - execução automatizada de testes e lint
+  - governança de entrega
 
 ### Próximas stories
+
+- **Story 008** - API de operação
+  - endpoints REST
+  - simulação de liquidação
+  - documentação OpenAPI
+
+- **Story 009** - Extrato e consultas analíticas
+  - listagem de liquidações
+  - filtros por período, cedente e moeda
+  - SQL otimizado para relatórios
+
+- **Story 010** - Observabilidade e resiliência
+  - logs estruturados
+  - métricas
+  - tratamento de erro
+  - concorrência com optimistic locking
+
+- **Story 011** - Frontend do operador
+  - formulário de simulação
+  - grid de transações
+  - paginação server-side
+
+- **Story 012** - Documentação e entrega
+  - `AI_USAGE.md`
+  - diagrama C4
+  - diagrama ER
+  - SQL DDL final
+  - tag da versão entregue
+
+### Em andamento
 
 - **Story 007** - Refatoração e padronização do domínio
   - centralização de enums
@@ -139,41 +178,4 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - exceptions customizadas
   - factories e enriquecimento do domínio
 
-- **Story 008** - API de operação
-  - endpoints REST
-  - simulação de liquidação
-  - documentação OpenAPI
 
-### Em andamento
-
-- **Story 006** - Automação de qualidade e CI/CD
-  - pipeline de validação
-  - execução automatizada de testes e lint
-  - governança de entrega
-
-### Concluido
-
-- **Story 005** - Motor de precificação
-  - `Strategy Pattern`
-  - cálculo de valor presente
-  - spread por tipo de recebível
-  - conversão cross-currency
-- **Story 009** - Extrato e consultas analíticas
-  - listagem de liquidações
-  - filtros por período, cedente e moeda
-  - SQL otimizado para relatórios
-- **Story 010** - Observabilidade e resiliência
-  - logs estruturados
-  - métricas
-  - tratamento de erro
-  - concorrência com optimistic locking
-- **Story 011** - Frontend do operador
-  - formulário de simulação
-  - grid de transações
-  - paginação server-side
-- **Story 012** - Documentação e entrega
-  - `AI_USAGE.md`
-  - diagrama C4
-  - diagrama ER
-  - SQL DDL final
-  - tag da versão entregue
