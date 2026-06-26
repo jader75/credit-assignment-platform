@@ -115,15 +115,18 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
 
 ### Próximas stories
 
+- **Story 006** - API de operação
+  - endpoints REST
+  - simulação de liquidação
+  - documentação OpenAPI
+
+### Em andamento
+
 - **Story 005** - Motor de precificação
   - `Strategy Pattern`
   - cálculo de valor presente
   - spread por tipo de recebível
   - conversão cross-currency
-- **Story 006** - API de operação
-  - endpoints REST
-  - simulação de liquidação
-  - documentação OpenAPI
 - **Story 007** - Extrato e consultas analíticas
   - listagem de liquidações
   - filtros por período, cedente e moeda
