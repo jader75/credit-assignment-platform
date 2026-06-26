@@ -1,13 +1,14 @@
 ﻿# credit-assignment-platform
-Plataforma em Java 21 para apoiar a cessao e a precificacao de direitos crediticios. A base atual da Story 003 deixa a aplicacao Spring Boot pronta para subir com PostgreSQL em Docker e aplicar o schema via Flyway.
+Plataforma em Java 21 para apoiar a cessao, a precificacao e a consulta analitica de direitos crediticios multimoedas. A base atual possui backend Spring Boot, PostgreSQL com Flyway, motor de precificacao, APIs REST e automacoes de qualidade.
 
 ## O que existe no projeto
 
 - `build.gradle`: "build" principal com `java`, `spring-boot`, `jacoco` e `spotless`
 - `settings.gradle`: nome do projeto como `credit-assignment-platform`
 - `gradlew` e `gradlew.bat`: wrapper do Gradle para execucao local e no hook
-- `.githooks/pre-commit.ps1`: executa `./gradlew.bat spotlessApply` e `./gradlew.bat clean check` antes do commit
+- `.githooks/pre-commit.ps1`: executa `./gradlew.bat spotlessApply` antes do commit
 - `.githooks/pre-push.ps1`: executa `./gradlew.bat clean check` antes do push
+- `docs/ai`: regras do desafio, decisões arquiteturais e padrões de código usados com apoio de IA
 - `docs/db/schema.sql`: schema de referência da base de dados
 - `docs/db/data.sql`: massa inicial ainda vazia
 - `backend/credit-engine`: modulo inicial do backend com a aplicacao Spring Boot
@@ -32,6 +33,8 @@ Plataforma em Java 21 para apoiar a cessao e a precificacao de direitos creditic
 ├── backend/
 │   └── credit-engine/
 ├── docs/
+│   ├── ai/
+│   ├── api/
 │   └── db/
 ├── frontend/
 ├── .githooks/
@@ -87,6 +90,16 @@ Se a formatacao falhar, o commit e bloqueado. Se o `check` falhar, o push e bloq
 
 A documentacao da simulacao de precificacao esta em [docs/api/pricing-simulation.md](docs/api/pricing-simulation.md).
 A documentacao do extrato de liquidacao esta em [docs/api/settlement-statement.md](docs/api/settlement-statement.md).
+
+## Diretrizes de IA e arquitetura
+
+As regras consolidadas do desafio e as decisoes usadas para orientar o desenvolvimento estao em:
+
+- [docs/ai/project-rules.md](docs/ai/project-rules.md)
+- [docs/ai/architecture.md](docs/ai/architecture.md)
+- [docs/ai/coding-standards.md](docs/ai/coding-standards.md)
+
+O `agent.md` fica reservado para instrucoes operacionais do agente.
 
 ## Como validar localmente
 
@@ -156,31 +169,35 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - simulação de liquidação
   - documentação OpenAPI
 
-### Próximas stories
-
 - **Story 009** - Extrato e consultas analíticas
   - listagem de liquidações
   - filtros por período, cedente e moeda
   - SQL otimizado para relatórios
 
+### Em andamento
+
+- **Story 010** - Documentação de contexto e diretrizes de IA
+  - separação entre instruções operacionais e regras do projeto
+  - consolidação de premissas do desafio
+  - registro de decisões arquiteturais
+  - padronização das convenções de código
+
 ### Próximas stories
 
-- **Story 010** - Observabilidade e resiliência
+- **Story 011** - Observabilidade e resiliência
   - "logs" estruturados
   - métricas
   - tratamento de erro
   - concorrência com optimistic locking
 
-- **Story 011** - Frontend do operador
+- **Story 012** - Frontend do operador
   - formulário de simulação
   - grid de transações
   - paginação server-side
 
-- **Story 012** - Documentação e entrega
+- **Story 013** - Documentação e entrega
   - `AI_USAGE.md`
   - diagrama C4
   - diagrama ER
   - SQL DDL final
   - "tag" da versão entregue
-
-### Em andamento
