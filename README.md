@@ -6,6 +6,7 @@ Plataforma em Java 21 para apoiar a cessao e a precificacao de direitos creditic
 - `build.gradle`: build principal com `java`, `spring-boot`, `jacoco` e `spotless`
 - `settings.gradle`: nome do projeto como `credit-assignment-platform`
 - `gradlew` e `gradlew.bat`: wrapper do Gradle para execucao local e no hook
+- `.githooks/pre-commit.ps1`: executa `./gradlew.bat spotlessApply` e `./gradlew.bat clean check` antes do commit
 - `.githooks/pre-push.ps1`: executa `./gradlew.bat clean check` antes do push
 - `docs/db/schema.sql`: schema de referencia da base de dados
 - `docs/db/data.sql`: massa inicial ainda vazia
@@ -66,22 +67,39 @@ A documentação visual da modelagem está em [docs/diagrams/db/v1/README.md](do
 
 ## Qualidade
 
-O push esta ligado a um gate de qualidade via `.githooks/pre-push.ps1`.
+O commit e o push estao ligados a gates de qualidade via `.githooks/pre-commit.ps1` e `.githooks/pre-push.ps1`.
 
-O script executa:
+O `pre-commit` executa:
+
+```powershell
+./gradlew.bat spotlessApply
+```
+
+O `pre-push` executa:
 
 ```powershell
 ./gradlew.bat clean check
 ```
 
-Se o `check` falhar, o push e bloqueado.
+Se a formatacao falhar, o commit e bloqueado. Se o `check` falhar, o push e bloqueado.
 
 ## Como validar localmente
 
 ```powershell
 docker compose up -d
+.\gradlew.bat spotlessApply
 .\gradlew.bat bootRun
 .\gradlew.bat clean check
+```
+
+Fluxo manual equivalente ao hook:
+
+```powershell
+.\gradlew.bat spotlessApply
+.\gradlew.bat clean check
+git add .
+git commit
+git push
 ```
 
 O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida a inicializacao do contexto da aplicacao.
@@ -115,32 +133,45 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
 
 ### Próximas stories
 
-- **Story 006** - API de operação
+- **Story 007** - Refatoração e padronização do domínio
+  - centralização de enums
+  - centralização de mensagens
+  - exceptions customizadas
+  - factories e enriquecimento do domínio
+
+- **Story 008** - API de operação
   - endpoints REST
   - simulação de liquidação
   - documentação OpenAPI
 
 ### Em andamento
 
+- **Story 006** - Automação de qualidade e CI/CD
+  - pipeline de validação
+  - execução automatizada de testes e lint
+  - governança de entrega
+
+### Concluido
+
 - **Story 005** - Motor de precificação
   - `Strategy Pattern`
   - cálculo de valor presente
   - spread por tipo de recebível
   - conversão cross-currency
-- **Story 007** - Extrato e consultas analíticas
+- **Story 009** - Extrato e consultas analíticas
   - listagem de liquidações
   - filtros por período, cedente e moeda
   - SQL otimizado para relatórios
-- **Story 008** - Observabilidade e resiliência
+- **Story 010** - Observabilidade e resiliência
   - logs estruturados
   - métricas
   - tratamento de erro
   - concorrência com optimistic locking
-- **Story 009** - Frontend do operador
+- **Story 011** - Frontend do operador
   - formulário de simulação
   - grid de transações
   - paginação server-side
-- **Story 010** - Documentação e entrega
+- **Story 012** - Documentação e entrega
   - `AI_USAGE.md`
   - diagrama C4
   - diagrama ER
