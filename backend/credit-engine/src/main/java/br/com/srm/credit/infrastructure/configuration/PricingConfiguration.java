@@ -1,5 +1,6 @@
 package br.com.srm.credit.infrastructure.configuration;
 
+import br.com.srm.credit.application.pricing.PricingSimulationApplicationService;
 import br.com.srm.credit.domain.pricing.ReceivablePricingService;
 import br.com.srm.credit.domain.pricing.strategy.CommercialReceivablePricingStrategy;
 import br.com.srm.credit.domain.pricing.strategy.PostDatedCheckPricingStrategy;
@@ -31,5 +32,11 @@ public class PricingConfiguration {
     @Bean
     public ReceivablePricingService receivablePricingService(PricingStrategyResolver pricingStrategyResolver) {
         return new ReceivablePricingService(pricingStrategyResolver);
+    }
+
+    @Bean
+    public PricingSimulationApplicationService pricingSimulationApplicationService(
+            ReceivablePricingService receivablePricingService) {
+        return new PricingSimulationApplicationService(receivablePricingService);
     }
 }
