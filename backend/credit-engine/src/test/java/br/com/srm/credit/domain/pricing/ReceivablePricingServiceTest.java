@@ -17,9 +17,9 @@ class ReceivablePricingServiceTest {
 
     @Test
     void shouldPriceCommercialReceivableInSameCurrency() {
-        var receivableType = new ReceivableTypePricingProfile(
-                "TRADE_RECEIVABLE", "COMMERCIAL_RECEIVABLE", new BigDecimal("0.0150"), true);
-        var request = new CreditPricingRequest(
+        var receivableType =
+                ReceivableTypePricingProfile.of("TRADE_RECEIVABLE", "TRADE_RECEIVABLE", new BigDecimal("0.0150"), true);
+        var request = CreditPricingRequest.of(
                 "OP-001",
                 "TRADE_RECEIVABLE",
                 "BRL",
@@ -32,7 +32,7 @@ class ReceivablePricingServiceTest {
         var result = service.price(request, receivableType);
 
         assertThat(result.operationReference()).isEqualTo("OP-001");
-        assertThat(result.receivablePricingRuleCode()).isEqualTo("COMMERCIAL_RECEIVABLE");
+        assertThat(result.receivablePricingRuleCode()).isEqualTo("TRADE_RECEIVABLE");
         assertThat(result.appliedSpread()).isEqualByComparingTo("0.0150");
         assertThat(result.discountedAmount()).isEqualByComparingTo("966.18");
         assertThat(result.netAmount()).isEqualByComparingTo("966.18");
@@ -41,9 +41,9 @@ class ReceivablePricingServiceTest {
 
     @Test
     void shouldPricePostDatedCheckInCrossCurrency() {
-        var receivableType = new ReceivableTypePricingProfile(
-                "POST_DATED_CHECK", "POST_DATED_CHECK", new BigDecimal("0.0250"), true);
-        var request = new CreditPricingRequest(
+        var receivableType =
+                ReceivableTypePricingProfile.of("POST_DATED_CHECK", "POST_DATED_CHECK", new BigDecimal("0.0250"), true);
+        var request = CreditPricingRequest.of(
                 "OP-002",
                 "POST_DATED_CHECK",
                 "BRL",
@@ -66,9 +66,9 @@ class ReceivablePricingServiceTest {
     void shouldFailWhenNoStrategyExistsForRuleCode() {
         var resolver = new PricingStrategyResolver(List.of(new CommercialReceivablePricingStrategy()));
         var serviceWithoutPostDatedCheckStrategy = new ReceivablePricingService(resolver);
-        var receivableType = new ReceivableTypePricingProfile(
-                "POST_DATED_CHECK", "POST_DATED_CHECK", new BigDecimal("0.0250"), true);
-        var request = new CreditPricingRequest(
+        var receivableType =
+                ReceivableTypePricingProfile.of("POST_DATED_CHECK", "POST_DATED_CHECK", new BigDecimal("0.0250"), true);
+        var request = CreditPricingRequest.of(
                 "OP-003",
                 "POST_DATED_CHECK",
                 "BRL",
@@ -79,7 +79,34 @@ class ReceivablePricingServiceTest {
                 new BigDecimal("1.00000000"));
 
         assertThatThrownBy(() -> serviceWithoutPostDatedCheckStrategy.price(request, receivableType))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("No pricing strategy found");
+                .isInstanceOf(PricingBusinessException.class)
+                .hasMessage(PricingMessage.PRICING_RULE_NOT_FOUND.message());
+    }
+
+    @Test
+    void shouldFailWhenRequestIsNull() {
+        var receivableType =
+                ReceivableTypePricingProfile.of("TRADE_RECEIVABLE", "TRADE_RECEIVABLE", new BigDecimal("0.0150"), true);
+
+        assertThatThrownBy(() -> service.price(null, receivableType))
+                .isInstanceOf(PricingValidationException.class)
+                .hasMessage(PricingMessage.PRICING_REQUEST_INVALID.message());
+    }
+
+    @Test
+    void shouldFailWhenReceivableTypeIsNull() {
+        var request = CreditPricingRequest.of(
+                "OP-004",
+                "TRADE_RECEIVABLE",
+                "BRL",
+                "BRL",
+                new BigDecimal("1000.00"),
+                new BigDecimal("0.0200"),
+                30,
+                new BigDecimal("1.00000000"));
+
+        assertThatThrownBy(() -> service.price(request, null))
+                .isInstanceOf(PricingValidationException.class)
+                .hasMessage(PricingMessage.RECEIVABLE_TYPE_INVALID.message());
     }
 }
