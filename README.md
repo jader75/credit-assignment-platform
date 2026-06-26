@@ -3,12 +3,12 @@ Plataforma em Java 21 para apoiar a cessao e a precificacao de direitos creditic
 
 ## O que existe no projeto
 
-- `build.gradle`: build principal com `java`, `spring-boot`, `jacoco` e `spotless`
+- `build.gradle`: "build" principal com `java`, `spring-boot`, `jacoco` e `spotless`
 - `settings.gradle`: nome do projeto como `credit-assignment-platform`
 - `gradlew` e `gradlew.bat`: wrapper do Gradle para execucao local e no hook
 - `.githooks/pre-commit.ps1`: executa `./gradlew.bat spotlessApply` e `./gradlew.bat clean check` antes do commit
 - `.githooks/pre-push.ps1`: executa `./gradlew.bat clean check` antes do push
-- `docs/db/schema.sql`: schema de referencia da base de dados
+- `docs/db/schema.sql`: schema de referência da base de dados
 - `docs/db/data.sql`: massa inicial ainda vazia
 - `backend/credit-engine`: modulo inicial do backend com a aplicacao Spring Boot
 
@@ -60,10 +60,10 @@ A documentação visual da modelagem está em [docs/diagrams/db/v1/README.md](do
 ## Modelo do dominio
 
 - `credit_batches` representa o lote recebido pela plataforma
-- `credit_assignments` representa cada item do lote, com o snapshot de precificacao
-- `receivable_types` define o tipo do ativo e a regra base de spread
-- `exchange_rates` guarda o historico de cambio com origem da taxa
-- `assignors` guarda o cedente e seu rating atual
+- `credit_assignments` representa cada ítem do lote, com o snapshot de precificacao
+- `receivable_types` define o tipo do ativo e a regra base de "spread"
+- `exchange_rates` guarda o historico de câmbio com origem da taxa
+- `assignors` guarda o cedente e a sua classificação atual
 
 ## Qualidade
 
@@ -130,14 +130,14 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - validação de conexão com Docker
 - **Story 004** - Modelagem do domínio
   - lote de recebíveis
-  - item de cessão/liquidação
+  - ítem de cessão/liquidação
   - câmbio
   - tipos de recebível
   - cedente
 - **Story 005** - Motor de precificação
   - `Strategy Pattern`
   - cálculo de valor presente
-  - spread por tipo de recebível
+  - "spread" por tipo de recebível
   - conversão cross-currency
 - **Story 006** - Automação de qualidade e CI/CD
   - pipeline de validação
@@ -163,7 +163,7 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - SQL otimizado para relatórios
 
 - **Story 010** - Observabilidade e resiliência
-  - logs estruturados
+  - "logs" estruturados
   - métricas
   - tratamento de erro
   - concorrência com optimistic locking
@@ -178,7 +178,7 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - diagrama C4
   - diagrama ER
   - SQL DDL final
-  - tag da versão entregue
+  - "tag" da versão entregue
 
 
 
