@@ -1,4 +1,4 @@
-# credit-assignment-platform
+﻿# credit-assignment-platform
 Plataforma em Java 21 para apoiar a cessao e a precificacao de direitos crediticios. A base atual da Story 003 deixa a aplicacao Spring Boot pronta para subir com PostgreSQL em Docker e aplicar o schema via Flyway.
 
 ## O que existe no projeto
@@ -83,6 +83,10 @@ O `pre-push` executa:
 
 Se a formatacao falhar, o commit e bloqueado. Se o `check` falhar, o push e bloqueado.
 
+## API
+
+A documentacao da simulacao de precificacao esta em [docs/api/pricing-simulation.md](docs/api/pricing-simulation.md).
+
 ## Como validar localmente
 
 ```powershell
@@ -140,12 +144,18 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - execução automatizada de testes e lint
   - governança de entrega
 
-### Próximas stories
+- **Story 007** - Refatoração e padronização do domínio
+  - centralização de enums
+  - centralização de mensagens
+  - exceptions customizadas
+  - factories e enriquecimento do domínio
 
 - **Story 008** - API de operação
   - endpoints REST
   - simulação de liquidação
   - documentação OpenAPI
+
+### Próximas stories
 
 - **Story 009** - Extrato e consultas analíticas
   - listagem de liquidações
@@ -170,12 +180,6 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - SQL DDL final
   - tag da versão entregue
 
-### Em andamento
 
-- **Story 007** - Refatoração e padronização do domínio
-  - centralização de enums
-  - centralização de mensagens
-  - exceptions customizadas
-  - factories e enriquecimento do domínio
 
 
