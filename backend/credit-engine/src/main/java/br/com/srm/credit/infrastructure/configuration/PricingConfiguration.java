@@ -5,6 +5,7 @@ import br.com.srm.credit.domain.pricing.ReceivablePricingService;
 import br.com.srm.credit.domain.pricing.strategy.CommercialReceivablePricingStrategy;
 import br.com.srm.credit.domain.pricing.strategy.PostDatedCheckPricingStrategy;
 import br.com.srm.credit.domain.pricing.strategy.PricingStrategyResolver;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,7 +37,7 @@ public class PricingConfiguration {
 
     @Bean
     public PricingSimulationApplicationService pricingSimulationApplicationService(
-            ReceivablePricingService receivablePricingService) {
-        return new PricingSimulationApplicationService(receivablePricingService);
+            ReceivablePricingService receivablePricingService, MeterRegistry meterRegistry) {
+        return new PricingSimulationApplicationService(receivablePricingService, meterRegistry);
     }
 }

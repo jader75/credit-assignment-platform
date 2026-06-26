@@ -7,6 +7,7 @@ import br.com.srm.credit.domain.pricing.PricingBusinessException;
 import br.com.srm.credit.domain.pricing.PricingMessage;
 import br.com.srm.credit.domain.pricing.PricingValidationException;
 import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpStatus;
@@ -22,13 +23,19 @@ class ApiExceptionHandlerTest {
 
     @Test
     void shouldHandlePricingValidationException() {
-        var response = handler.handlePricingValidation(
-                new PricingValidationException(PricingMessage.PRICING_REQUEST_INVALID),
-                request("/api/v1/pricing/simulations"));
+        MDC.put(RequestCorrelationFilter.CORRELATION_ID_KEY, "corr-001");
+        try {
+            var response = handler.handlePricingValidation(
+                    new PricingValidationException(PricingMessage.PRICING_REQUEST_INVALID),
+                    request("/api/v1/pricing/simulations"));
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().message()).isEqualTo(PricingMessage.PRICING_REQUEST_INVALID.message());
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().message()).isEqualTo(PricingMessage.PRICING_REQUEST_INVALID.message());
+            assertThat(response.getBody().correlationId()).isEqualTo("corr-001");
+        } finally {
+            MDC.clear();
+        }
     }
 
     @Test
@@ -76,6 +83,16 @@ class ApiExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).extracting(ApiErrorResponse::message).isEqualTo("Corpo da requisicao invalido.");
+    }
+
+    @Test
+    void shouldHandleUnexpectedException() {
+        var response =
+                handler.handleUnexpected(new IllegalStateException("boom"), request("/api/v1/pricing/simulations"));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody()).extracting(ApiErrorResponse::message).isEqualTo("Erro inesperado.");
     }
 
     private static MockHttpServletRequest request(String uri) {

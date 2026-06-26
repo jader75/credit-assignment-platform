@@ -24,4 +24,8 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} level=%-5level class=%logger{36} correlationId=%X{correlationId:-} transactionId=%X{transactionId:-} %msg%n"

@@ -4,6 +4,7 @@ import static br.com.srm.credit.domain.shared.DomainValidation.require;
 import static br.com.srm.credit.domain.shared.DomainValidation.requireNonNull;
 
 import br.com.srm.credit.domain.pricing.strategy.PricingStrategyResolver;
+import br.com.srm.credit.domain.shared.StructuredLog;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -27,6 +28,18 @@ public class ReceivablePricingService {
                 request.receivablePricingRuleCode().equals(receivableType.pricingRuleCode()),
                 () -> new PricingBusinessException(PricingMessage.PRICING_RULE_MISMATCH));
 
+        StructuredLog.debug()
+                .step("processing")
+                .append(
+                        request,
+                        "operationReference",
+                        "receivablePricingRuleCode",
+                        "faceCurrencyCode",
+                        "paymentCurrencyCode",
+                        "termDays")
+                .append("typeActive", receivableType.active())
+                .log();
+
         var strategy = pricingStrategyResolver.resolve(receivableType);
         var appliedSpread = strategy.resolveSpread(receivableType);
         var monthlyPeriods = BigDecimal.valueOf(request.termDays()).divide(DAYS_IN_MONTH, 8, RoundingMode.HALF_UP);
@@ -42,6 +55,15 @@ public class ReceivablePricingService {
         } else {
             netAmount = discountedAmount.setScale(2, RoundingMode.HALF_UP);
         }
+
+        StructuredLog.info()
+                .step("end")
+                .append(request, "operationReference")
+                .append("crossCurrency", crossCurrency)
+                .append("appliedSpread", appliedSpread.setScale(4, RoundingMode.HALF_UP))
+                .append("discountedAmount", discountedAmount.setScale(2, RoundingMode.HALF_UP))
+                .append("netAmount", netAmount)
+                .log();
 
         return new CreditPricingResponse(
                 request.operationReference(),
