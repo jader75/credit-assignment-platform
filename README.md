@@ -156,6 +156,8 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - simulação de liquidação
   - documentação OpenAPI
 
+### Próximas stories
+
 - **Story 009** - Extrato e consultas analíticas
   - listagem de liquidações
   - filtros por período, cedente e moeda
