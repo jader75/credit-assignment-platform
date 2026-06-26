@@ -26,6 +26,8 @@
 - Para Gradle com `JAVA_HOME`, usar uma linha direta:
   `$env:JAVA_HOME='D:\_DEV\JDK\jdk-21.0.1'; $env:PATH="$env:JAVA_HOME\bin;$env:PATH"; .\gradlew.bat check`
 - Usar a mesma forma para `spotlessApply`.
+- Ao montar strings com linha e índice, não usar interpolação direta como `"$i:$($_)"`; prefira `'{0}:{1}' -f $i, $_` ou `"$($i):$($_)"`.
+- Se um comando falhar por parsing do PowerShell, reescrever no formato mais simples possível antes de tentar outra variação.
 - Não imprimir no chat linhas de comando já executadas com sucesso; reportar só o resultado relevante.
 
 ## Leitura e economia de contexto

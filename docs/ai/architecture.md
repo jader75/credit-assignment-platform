@@ -67,6 +67,11 @@
 - Incluir metricas.
 - Considerar tracing se couber no prazo.
 - Chamadas externas futuras devem prever retry ou circuit breaker.
+- `correlationId` e `transactionId` devem ser carregados automaticamente no contexto da request quando possivel.
+- `transactionId` representa o fluxo de request ou a trilha de negocio que precisa ser correlacionada entre componentes.
+- O payload do log deve permanecer enxuto e evitar repeticao do que o pattern do logger ja imprime.
+- `step` deve ser o campo de fluxo mais importante para observabilidade de negocio e pode variar por processo.
+- Para entidades e payloads grandes, a utility deve suportar inclusao seletiva e exclusao seletiva de campos sem logar o objeto inteiro por padrao.
 
 ## Git e entrega
 

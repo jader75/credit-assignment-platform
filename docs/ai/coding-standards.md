@@ -47,6 +47,19 @@
 - CI/CD deve executar build, testes e lint.
 - Hooks locais devem reduzir falhas triviais antes do push.
 
+## Logs
+
+- Usar o helper de log estruturado do projeto em vez de montar strings manualmente.
+- Manter o payload curto por default.
+- O dev deve informar somente `step`, `msg` quando houver comentario de negocio e campos de negocio novos.
+- Para objetos grandes, usar `append(object, include...)` como padrao e `appendExcluding(object, exclude...)` apenas quando isso simplificar sem expor dados indevidos.
+- Quando o bloco manual passar de aproximadamente um terco dos atributos relevantes do objeto, preferir `include` ou `exclude` para reduzir linhas e manter a leitura.
+- `m`, `l`, `correlationId` e `transactionId` devem ser injetados automaticamente quando possivel.
+- Evitar repetir timestamp, level e class no payload quando o pattern do logger ja entrega isso.
+- Preferir abreviacoes padronizadas quando elas reduzirem custo de armazenamento e mantiverem busca eficiente.
+- `step` deve representar fases de processamento como `start`, `processing`, `validation`, `end` ou passos mais especificos quando o fluxo exigir.
+- Nao repetir em log de filho informacao que ja foi registrada no fluxo pai, salvo quando houver dado novo ou mudanca de estado.
+
 ## Documentacao
 
 - Atualizar o README quando o estado da story mudar.
