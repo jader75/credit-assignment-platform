@@ -86,6 +86,7 @@ Se a formatacao falhar, o commit e bloqueado. Se o `check` falhar, o push e bloq
 ## API
 
 A documentacao da simulacao de precificacao esta em [docs/api/pricing-simulation.md](docs/api/pricing-simulation.md).
+A documentacao do extrato de liquidacao esta em [docs/api/settlement-statement.md](docs/api/settlement-statement.md).
 
 ## Como validar localmente
 
@@ -162,6 +163,8 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - filtros por período, cedente e moeda
   - SQL otimizado para relatórios
 
+### Próximas stories
+
 - **Story 010** - Observabilidade e resiliência
   - "logs" estruturados
   - métricas
@@ -180,6 +183,4 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - SQL DDL final
   - "tag" da versão entregue
 
-
-
-
+### Em andamento
