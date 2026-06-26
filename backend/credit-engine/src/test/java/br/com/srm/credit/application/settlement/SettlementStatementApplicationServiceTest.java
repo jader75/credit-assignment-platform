@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -13,8 +14,9 @@ class SettlementStatementApplicationServiceTest {
 
     private final SettlementStatementReadRepository settlementStatementReadRepository =
             mock(SettlementStatementReadRepository.class);
+    private final SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
     private final SettlementStatementApplicationService applicationService =
-            new SettlementStatementApplicationService(settlementStatementReadRepository);
+            new SettlementStatementApplicationService(settlementStatementReadRepository, meterRegistry);
 
     @Test
     void shouldDelegateSearchToRepository() {
@@ -41,5 +43,11 @@ class SettlementStatementApplicationServiceTest {
 
         assertThat(result.totalElements()).isEqualTo(1);
         assertThat(result.items()).hasSize(1);
+        assertThat(meterRegistry
+                        .get("credit.settlement.statement.requests")
+                        .tag("outcome", "success")
+                        .counter()
+                        .count())
+                .isEqualTo(1.0d);
     }
 }

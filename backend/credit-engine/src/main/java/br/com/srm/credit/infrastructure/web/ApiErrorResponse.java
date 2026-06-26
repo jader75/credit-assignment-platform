@@ -9,4 +9,8 @@ public record ApiErrorResponse(
         @Schema(description = "Codigo HTTP retornado.", example = "400") int status,
         @Schema(description = "Descricao do status HTTP.", example = "Bad Request") String error,
         @Schema(description = "Mensagem de erro.", example = "Corpo da requisicao invalido.") String message,
-        @Schema(description = "Caminho da requisicao.", example = "/api/v1/pricing/simulations") String path) {}
+        @Schema(description = "Caminho da requisicao.", example = "/api/v1/pricing/simulations") String path,
+        @Schema(
+                        description = "Identificador de correlacao da requisicao.",
+                        example = "c9f17d2e-1f7d-4f1b-bc26-0e9a5be3e6b4")
+                String correlationId) {}

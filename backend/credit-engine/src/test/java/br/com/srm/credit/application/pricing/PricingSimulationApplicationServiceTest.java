@@ -6,15 +6,18 @@ import br.com.srm.credit.domain.pricing.ReceivablePricingService;
 import br.com.srm.credit.domain.pricing.strategy.CommercialReceivablePricingStrategy;
 import br.com.srm.credit.domain.pricing.strategy.PostDatedCheckPricingStrategy;
 import br.com.srm.credit.domain.pricing.strategy.PricingStrategyResolver;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class PricingSimulationApplicationServiceTest {
 
-    private final PricingSimulationApplicationService applicationService =
-            new PricingSimulationApplicationService(new ReceivablePricingService(new PricingStrategyResolver(
-                    List.of(new CommercialReceivablePricingStrategy(), new PostDatedCheckPricingStrategy()))));
+    private final SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
+    private final PricingSimulationApplicationService applicationService = new PricingSimulationApplicationService(
+            new ReceivablePricingService(new PricingStrategyResolver(
+                    List.of(new CommercialReceivablePricingStrategy(), new PostDatedCheckPricingStrategy()))),
+            meterRegistry);
 
     @Test
     void shouldSimulateCommercialReceivablePricing() {
@@ -38,5 +41,11 @@ class PricingSimulationApplicationServiceTest {
         assertThat(result.discountedAmount()).isEqualByComparingTo("966.18");
         assertThat(result.netAmount()).isEqualByComparingTo("966.18");
         assertThat(result.crossCurrency()).isFalse();
+        assertThat(meterRegistry
+                        .get("credit.pricing.simulation.requests")
+                        .tag("outcome", "success")
+                        .counter()
+                        .count())
+                .isEqualTo(1.0d);
     }
 }
