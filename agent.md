@@ -13,7 +13,7 @@
 - Quando uma decisão já foi fechada, trate-a como memória de sessão e não reavalie sem motivo novo.
 
 ## Git e fluxo
-- Antes de iniciar uma story nova, atualizar a `main` local e criar a branch no padrão `feature/story00x-...`.
+- Antes de iniciar uma story nova, criar a branch no padrão `feature/story00x-...` a partir do estado que o usuário indicar.
 - Mensagens de commit ficam em português e sem prefixo de story.
 - Segmentar commits quando fizer sentido.
 - Não insistir em `git diff` ou `git log` a cada passo curto.
