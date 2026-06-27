@@ -176,11 +176,10 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
 
 ### Em andamento
 
-- **Story 010** - Documentação de contexto e diretrizes de IA
-  - separação entre instruções operacionais e regras do projeto
-  - consolidação de premissas do desafio
-  - registro de decisões arquiteturais
-  - padronização das convenções de código
+- **Story 012** - Frontend do operador
+  - formulário de simulação
+  - grid de transações
+  - paginação server-side
 
 ### Próximas stories
 
@@ -189,11 +188,6 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - métricas
   - tratamento de erro
   - concorrência com optimistic locking
-
-- **Story 012** - Frontend do operador
-  - formulário de simulação
-  - grid de transações
-  - paginação server-side
 
 - **Story 013** - Documentação e entrega
   - `AI_USAGE.md`
