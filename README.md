@@ -213,19 +213,19 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
 
 ### Em andamento
 
-- **Story 014** - Documentação e entrega
-  - `AI_USAGE.md`
-  - diagrama C4
-  - diagrama ER
-  - SQL DDL final
-  - "tag" da versão entregue
-
-### Próximas stories
-
-- **Story 015** - Resiliência e segurança básica
+- **Story 014** - Resiliência e segurança básica
   - integração com Frankfurter para consulta de câmbio
   - fallback em `exchange_rates`
   - retry e circuit breaker
   - timeout curto no cliente HTTP
   - JWT básico no backend
   - rastreabilidade de usuário e melhoria futura de hardening
+
+### Próximas stories
+
+- **Story 015** - Documentação e entrega
+  - `AI_USAGE.md`
+  - diagrama C4
+  - diagrama ER
+  - SQL DDL final
+  - "tag" da versão entregue
