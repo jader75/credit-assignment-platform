@@ -92,7 +92,9 @@ class ApiExceptionHandlerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody()).extracting(ApiErrorResponse::message).isEqualTo("Erro inesperado.");
+        assertThat(response.getBody())
+                .extracting(ApiErrorResponse::message)
+                .isEqualTo("Nao foi possivel processar a requisicao.");
     }
 
     private static MockHttpServletRequest request(String uri) {

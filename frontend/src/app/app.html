@@ -1,0 +1,256 @@
+<main class="page">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">SRM Asset</p>
+      <h1>{{ pageTitle }}</h1>
+      <p class="subtitle">
+        Painel mínimo do operador para simular precificação e consultar o extrato de liquidação.
+      </p>
+    </div>
+    <div class="status-box">
+      <span>Backend</span>
+      <strong>http://localhost:8080/api/v1</strong>
+      <small>Frontend em http://localhost:4200</small>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="panel">
+      <header class="panel-header">
+        <div>
+          <p class="panel-kicker">Simulação</p>
+          <h2>Recebível</h2>
+        </div>
+        <button type="button" class="ghost-button" (click)="simulateExample()">Carregar exemplo</button>
+      </header>
+
+      <form class="form" (ngSubmit)="simulate()">
+        <label>
+          <span>Referência da operação</span>
+          <input name="operationReference" [(ngModel)]="simulation.operationReference" />
+        </label>
+
+        <label>
+          <span>Tipo de recebível</span>
+          <select name="receivableTypeCode" [(ngModel)]="simulation.receivableTypeCode">
+            <option *ngFor="let option of receivableTypeOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>Regra de precificação</span>
+          <select name="receivablePricingRuleCode" [(ngModel)]="simulation.receivablePricingRuleCode">
+            <option *ngFor="let option of ruleOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>Spread base</span>
+          <input
+            name="receivableTypeBaseSpread"
+            type="number"
+            step="0.0001"
+            [(ngModel)]="simulation.receivableTypeBaseSpread"
+          />
+        </label>
+
+        <label class="checkbox">
+          <input name="receivableTypeActive" type="checkbox" [(ngModel)]="simulation.receivableTypeActive" />
+          <span>Tipo ativo</span>
+        </label>
+
+        <label>
+          <span>Moeda do título</span>
+          <select name="faceCurrencyCode" [(ngModel)]="simulation.faceCurrencyCode">
+            <option *ngFor="let option of currencyOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>Moeda de pagamento</span>
+          <select name="paymentCurrencyCode" [(ngModel)]="simulation.paymentCurrencyCode">
+            <option *ngFor="let option of currencyOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>Valor de face</span>
+          <input name="faceAmount" type="number" step="0.01" [(ngModel)]="simulation.faceAmount" />
+        </label>
+
+        <label>
+          <span>Taxa base</span>
+          <input name="baseTaxRate" type="number" step="0.0001" [(ngModel)]="simulation.baseTaxRate" />
+        </label>
+
+        <label>
+          <span>Prazo em dias</span>
+          <input name="termDays" type="number" min="0" [(ngModel)]="simulation.termDays" />
+        </label>
+
+        <label>
+          <span>Taxa de câmbio</span>
+          <input name="exchangeRate" type="number" step="0.00000001" [(ngModel)]="simulation.exchangeRate" />
+        </label>
+
+        <div class="actions">
+          <button type="submit" [disabled]="simulationLoading">
+            {{ simulationLoading ? 'Simulando...' : 'Simular' }}
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <article class="panel">
+      <header class="panel-header">
+        <div>
+          <p class="panel-kicker">Resultado</p>
+          <h2>Precificação</h2>
+        </div>
+      </header>
+
+      <div *ngIf="simulationResult; else simulationEmpty" class="result-grid">
+        <div><span>Operação</span><strong>{{ simulationResult.operationReference }}</strong></div>
+        <div>
+          <span>Regra</span>
+          <strong>{{ ruleLabel(simulationResult.receivablePricingRuleCode) }}</strong>
+        </div>
+        <div>
+          <span>Valor líquido</span>
+          <strong>{{ simulationResult.netAmount | number:'1.2-2' }}</strong>
+        </div>
+        <div>
+          <span>Desconto</span>
+          <strong>{{ simulationResult.discountedAmount | number:'1.2-2' }}</strong>
+        </div>
+        <div>
+          <span>Spread aplicado</span>
+          <strong>{{ simulationResult.appliedSpread | number:'1.4-4' }}</strong>
+        </div>
+        <div>
+          <span>Conversão cambial</span>
+          <strong>{{ simulationResult.crossCurrency ? 'Sim' : 'Não' }}</strong>
+        </div>
+      </div>
+
+      <ng-template #simulationEmpty>
+        <p class="empty">Execute uma simulação para ver o resultado consolidado.</p>
+      </ng-template>
+
+      <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+    </article>
+  </section>
+
+  <section class="panel full-width">
+    <header class="panel-header">
+      <div>
+        <p class="panel-kicker">Extrato</p>
+        <h2>Liquidação</h2>
+      </div>
+      <div class="panel-actions">
+        <button type="button" class="ghost-button" (click)="resetFilters()">Limpar filtros</button>
+        <button type="button" (click)="loadStatement()">Atualizar</button>
+      </div>
+    </header>
+
+    <form class="filters" (ngSubmit)="loadStatement(0)">
+      <label>
+        <span>Data inicial</span>
+        <input name="startDate" type="date" [(ngModel)]="settlementFilter.startDate" />
+      </label>
+      <label>
+        <span>Data final</span>
+        <input name="endDate" type="date" [(ngModel)]="settlementFilter.endDate" />
+      </label>
+      <label>
+        <span>Documento do cedente</span>
+        <input
+          name="assignorDocumentNumber"
+          [(ngModel)]="settlementFilter.assignorDocumentNumber"
+          placeholder="Somente números"
+        />
+      </label>
+      <label>
+        <span>Moeda</span>
+        <select name="paymentCurrencyCode" [(ngModel)]="settlementFilter.paymentCurrencyCode">
+          <option value="">Todas</option>
+          <option *ngFor="let option of currencyOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </label>
+      <label>
+        <span>Linhas</span>
+        <input name="size" type="number" min="1" max="100" [(ngModel)]="settlementFilter.size" />
+      </label>
+      <div class="actions">
+        <button type="submit" [disabled]="statementLoading">
+          {{ statementLoading ? 'Consultando...' : 'Aplicar filtros' }}
+        </button>
+      </div>
+    </form>
+
+    <div *ngIf="statementPage?.items?.length; else emptyStatement" class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Operação</th>
+            <th>Lote</th>
+            <th>Cedente</th>
+            <th>Documento</th>
+            <th>Moeda</th>
+            <th>Face</th>
+            <th>Líquido</th>
+            <th>Liquidado em</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of statementPage?.items; trackBy: trackByOperationReference">
+            <td>{{ item.operationReference }}</td>
+            <td>{{ item.batchReference }}</td>
+            <td>{{ item.assignorName }}</td>
+            <td>{{ item.assignorDocumentNumber }}</td>
+            <td>{{ currencyLabel(item.paymentCurrencyCode) }}</td>
+            <td>{{ item.faceAmount | number:'1.2-2' }}</td>
+            <td>{{ item.netAmount | number:'1.2-2' }}</td>
+            <td>{{ item.liquidatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ item.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #emptyStatement>
+      <p class="empty">Nenhum registro encontrado para os filtros atuais.</p>
+    </ng-template>
+
+    <footer class="pager" *ngIf="statementPage">
+      <span>
+        Página {{ statementPage.page + 1 }} de {{ statementPage.totalPages || 1 }}
+        - {{ statementPage.totalElements }} registros
+      </span>
+      <div class="pager-actions">
+        <button type="button" class="ghost-button" (click)="previousPage()" [disabled]="statementPage.page === 0">
+          Anterior
+        </button>
+        <button
+          type="button"
+          class="ghost-button"
+          (click)="nextPage()"
+          [disabled]="statementPage.page + 1 >= statementPage.totalPages"
+        >
+          Próxima
+        </button>
+      </div>
+    </footer>
+  </section>
+</main>
