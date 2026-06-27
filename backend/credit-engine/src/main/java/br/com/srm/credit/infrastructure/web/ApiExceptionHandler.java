@@ -75,7 +75,8 @@ public class ApiExceptionHandler {
                 .append("path", request.getRequestURI())
                 .append("reason", exception.getMessage())
                 .log();
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Erro inesperado.", request.getRequestURI());
+        return build(
+                HttpStatus.INTERNAL_SERVER_ERROR, "Nao foi possivel processar a requisicao.", request.getRequestURI());
     }
 
     private static ResponseEntity<ApiErrorResponse> build(HttpStatus status, String message, String path) {
