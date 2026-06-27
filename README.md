@@ -110,6 +110,22 @@ docker compose up -d
 .\gradlew.bat clean check
 ```
 
+Para subir tudo de uma vez e aguardar os health checks:
+
+```powershell
+.\scripts\start-dev.ps1
+```
+
+Frontend:
+
+```powershell
+cd frontend
+npm install
+npm start
+```
+
+Se o `npm start` falhar por ambiente local incompleto, use o script acima ou confirme que a instalação do Node está disponível na sessão atual. O projeto já chama o CLI local do Angular, então não deve exigir ajuste manual de PATH depois do `npm install`.
+
 Fluxo manual equivalente ao hook:
 
 ```powershell
