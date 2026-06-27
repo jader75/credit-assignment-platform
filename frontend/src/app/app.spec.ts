@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { App } from './app';
 
@@ -23,3 +23,4 @@ describe('App', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Plataforma de Cessão de Crédito SRM');
   });
 });
+

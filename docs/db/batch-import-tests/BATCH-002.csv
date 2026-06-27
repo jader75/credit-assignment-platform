@@ -1,0 +1,3 @@
+operationReference,assignorDocumentNumber,assignorName,riskRating,receivableTypeCode,receivableTypeName,receivablePricingRuleCode,receivableTypeBaseSpread,receivableTypeActive,faceCurrencyCode,faceAmount,dueDate,baseTaxRate,termDays,paymentCurrencyCode,exchangeRate
+OP-101,98765432000188,Beta Financeira LTDA,B,POST_DATED_CHECK,Cheque Pre-datado,POST_DATED_CHECK,0.0250,true,USD,2000.00,2026-08-10,0.0185,60,USD,1.00000000
+OP-102,98765432000188,Beta Financeira LTDA,B,POST_DATED_CHECK,Cheque Pre-datado,POST_DATED_CHECK,0.0250,true,USD,3500.00,2026-08-25,0.0190,75,BRL,5.18000000

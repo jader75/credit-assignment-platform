@@ -19,6 +19,9 @@
 - Depois rodar `clean check`.
 - Se o build quebrar, corrigir antes de seguir.
 - Manter testes focados no comportamento relevante da story.
+- Se um comando falhar, isolar a causa com o menor reproduzir possível antes de repetir um build amplo.
+- Não disparar `test`, `check` ou `clean check` em paralelo contra o mesmo diretório `build`.
+- Sempre executar `spotlessApply` antes de `clean check`, inclusive após correções pequenas de linha ou formatação.
 
 ## Terminal e PowerShell
 - O terminal padrão é Windows PowerShell.

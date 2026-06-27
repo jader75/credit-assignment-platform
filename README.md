@@ -189,23 +189,41 @@ O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida 
   - listagem de liquidações
   - filtros por período, cedente e moeda
   - SQL otimizado para relatórios
-
-### Em andamento
-
+- **Story 010** - Documentação de contexto e diretrizes de IA
+  - `AI_USAGE.md`
+  - regras do desafio
+  - diretrizes operacionais do agente
+- **Story 011** - Observabilidade e resiliência
+  - logs estruturados
+  - tratamento de exceções
+  - métricas e monitoramento
+  - concorrência com optimistic locking
 - **Story 012** - Frontend do operador
   - formulário de simulação
   - grid de transações
   - paginação server-side
 
+- **Story 013** - Varredura geral de gaps, ajustes e validação final
+  - revisão de requisitos, regras e escopo
+  - identificação de gaps, fixes e inconsistências
+  - ajustes de qualidade e refatoração pontual
+  - cobertura, testes e validação final
+  - importação de lotes por arquivo para alimentar `credit_batches` e `credit_assignments`
+  - mesa operacional para liquidacao e alteracao de status de recebiveis
+
+### Em andamento
+
+- **Story 014** - Resiliência e segurança básica
+  - integração com Frankfurter para consulta de câmbio
+  - fallback em `exchange_rates`
+  - retry e circuit breaker
+  - timeout curto no cliente HTTP
+  - JWT básico no backend
+  - rastreabilidade de usuário e melhoria futura de hardening
+
 ### Próximas stories
 
-- **Story 011** - Observabilidade e resiliência
-  - "logs" estruturados
-  - métricas
-  - tratamento de erro
-  - concorrência com optimistic locking
-
-- **Story 013** - Documentação e entrega
+- **Story 015** - Documentação e entrega
   - `AI_USAGE.md`
   - diagrama C4
   - diagrama ER

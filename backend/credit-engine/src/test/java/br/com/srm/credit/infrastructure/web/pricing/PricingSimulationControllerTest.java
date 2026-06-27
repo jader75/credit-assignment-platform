@@ -55,16 +55,12 @@ class PricingSimulationControllerTest {
                                         """
                                 {
                                   "operationReference": "OP-001",
-                                  "receivableTypeCode": "TRADE_RECEIVABLE",
-                                  "receivablePricingRuleCode": "TRADE_RECEIVABLE",
-                                  "receivableTypeBaseSpread": 0.0150,
-                                  "receivableTypeActive": true,
+                                  "receivableTypeCode": "UNKNOWN_RULE",
                                   "faceCurrencyCode": "BRL",
                                   "paymentCurrencyCode": "BRL",
                                   "faceAmount": 1000.00,
                                   "baseTaxRate": 0.0200,
-                                  "termDays": 30,
-                                  "exchangeRate": 1.00000000
+                                  "termDays": 30
                                 }
                                 """))
                 .andExpect(status().isOk())
@@ -82,15 +78,11 @@ class PricingSimulationControllerTest {
                                 {
                                   "operationReference": "",
                                   "receivableTypeCode": "TRADE_RECEIVABLE",
-                                  "receivablePricingRuleCode": "TRADE_RECEIVABLE",
-                                  "receivableTypeBaseSpread": 0.0150,
-                                  "receivableTypeActive": true,
                                   "faceCurrencyCode": "BRL",
                                   "paymentCurrencyCode": "BRL",
                                   "faceAmount": 1000.00,
                                   "baseTaxRate": 0.0200,
-                                  "termDays": 30,
-                                  "exchangeRate": 1.00000000
+                                  "termDays": 30
                                 }
                                 """))
                 .andExpect(status().isBadRequest())
@@ -103,7 +95,7 @@ class PricingSimulationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Corpo da requisicao invalido."));
+                .andExpect(jsonPath("$.message").value("Corpo da requisição inválido."));
     }
 
     @Test
@@ -119,15 +111,11 @@ class PricingSimulationControllerTest {
                                 {
                                   "operationReference": "OP-001",
                                   "receivableTypeCode": "TRADE_RECEIVABLE",
-                                  "receivablePricingRuleCode": "POST_DATED_CHECK",
-                                  "receivableTypeBaseSpread": 0.0150,
-                                  "receivableTypeActive": true,
                                   "faceCurrencyCode": "BRL",
                                   "paymentCurrencyCode": "BRL",
                                   "faceAmount": 1000.00,
                                   "baseTaxRate": 0.0200,
-                                  "termDays": 30,
-                                  "exchangeRate": 1.00000000
+                                  "termDays": 30
                                 }
                                 """))
                 .andExpect(status().isUnprocessableEntity())

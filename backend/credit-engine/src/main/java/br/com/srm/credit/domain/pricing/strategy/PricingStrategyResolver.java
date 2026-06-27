@@ -4,7 +4,7 @@ import static br.com.srm.credit.domain.shared.DomainValidation.requireNonNull;
 
 import br.com.srm.credit.domain.pricing.PricingBusinessException;
 import br.com.srm.credit.domain.pricing.PricingMessage;
-import br.com.srm.credit.domain.pricing.ReceivableTypePricingProfile;
+import br.com.srm.credit.domain.pricing.PricingRuleCode;
 import java.util.List;
 
 public class PricingStrategyResolver {
@@ -15,11 +15,10 @@ public class PricingStrategyResolver {
         this.strategies = List.copyOf(strategies);
     }
 
-    public PricingStrategy resolve(ReceivableTypePricingProfile receivableType) {
-        requireNonNull(receivableType, () -> new PricingBusinessException(PricingMessage.RECEIVABLE_TYPE_INVALID));
-
+    public PricingStrategy resolve(PricingRuleCode ruleCode) {
+        requireNonNull(ruleCode, () -> new PricingBusinessException(PricingMessage.PRICING_RULE_CODE_INVALID));
         return strategies.stream()
-                .filter(strategy -> strategy.ruleCode().equals(receivableType.pricingRuleCode()))
+                .filter(strategy -> strategy.ruleCode().equals(ruleCode))
                 .findFirst()
                 .orElseThrow(() -> new PricingBusinessException(PricingMessage.PRICING_RULE_NOT_FOUND));
     }

@@ -1,6 +1,5 @@
 package br.com.srm.credit.domain.pricing;
 
-import static br.com.srm.credit.domain.shared.DomainValidation.require;
 import static br.com.srm.credit.domain.shared.DomainValidation.requireNonNull;
 
 import br.com.srm.credit.domain.pricing.strategy.PricingStrategyResolver;
@@ -21,12 +20,8 @@ public class ReceivablePricingService {
         this.pricingStrategyResolver = pricingStrategyResolver;
     }
 
-    public CreditPricingResponse price(CreditPricingRequest request, ReceivableTypePricingProfile receivableType) {
+    public CreditPricingResponse price(CreditPricingRequest request) {
         requireNonNull(request, () -> new PricingValidationException(PricingMessage.PRICING_REQUEST_INVALID));
-        requireNonNull(receivableType, () -> new PricingValidationException(PricingMessage.RECEIVABLE_TYPE_INVALID));
-        require(
-                request.receivablePricingRuleCode().equals(receivableType.pricingRuleCode()),
-                () -> new PricingBusinessException(PricingMessage.PRICING_RULE_MISMATCH));
 
         StructuredLog.debug()
                 .step("processing")
@@ -37,11 +32,10 @@ public class ReceivablePricingService {
                         "faceCurrencyCode",
                         "paymentCurrencyCode",
                         "termDays")
-                .append("typeActive", receivableType.active())
                 .log();
 
-        var strategy = pricingStrategyResolver.resolve(receivableType);
-        var appliedSpread = strategy.resolveSpread(receivableType);
+        var strategy = pricingStrategyResolver.resolve(request.receivablePricingRuleCode());
+        var appliedSpread = strategy.baseSpread();
         var monthlyPeriods = BigDecimal.valueOf(request.termDays()).divide(DAYS_IN_MONTH, 8, RoundingMode.HALF_UP);
         var effectiveRate = ONE.add(request.baseTaxRate()).add(appliedSpread);
         var discountFactor =
@@ -67,7 +61,7 @@ public class ReceivablePricingService {
 
         return new CreditPricingResponse(
                 request.operationReference(),
-                receivableType.pricingRuleCode().code(),
+                request.receivablePricingRuleCode().code(),
                 request.faceAmount().setScale(2, RoundingMode.HALF_UP),
                 request.baseTaxRate().setScale(4, RoundingMode.HALF_UP),
                 appliedSpread.setScale(4, RoundingMode.HALF_UP),

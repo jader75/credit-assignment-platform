@@ -13,8 +13,8 @@ public enum PricingMessage {
     BASE_SPREAD_INVALID("P010", "O spread base deve ser maior ou igual a zero."),
     PRICING_REQUEST_INVALID("P011", "A solicitação de precificação é obrigatória."),
     RECEIVABLE_TYPE_INVALID("P012", "O tipo de recebível é obrigatório."),
-    PRICING_RULE_NOT_FOUND("P013", "Nenhuma estratégia de precificação foi encontrada para o código informado."),
-    PRICING_RULE_MISMATCH("P014", "A regra de precificação da operação não confere com a regra do recebível.");
+    PRICING_RULE_NOT_FOUND("P013", "Nenhuma estratégia de precificação foi encontrada para a regra selecionada."),
+    PRICING_RULE_MISMATCH("P014", "A estratégia de precificação da operação não confere com o tipo do recebível.");
 
     private final String code;
     private final String message;

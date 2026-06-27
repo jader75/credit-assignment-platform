@@ -67,4 +67,9 @@ public class CreditBatchEntity {
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public void markProcessed(OffsetDateTime processedAt) {
+        this.status = BatchStatus.PROCESSED;
+        this.processedAt = processedAt;
+    }
 }

@@ -1,5 +1,6 @@
 package br.com.srm.credit.infrastructure.configuration;
 
+import br.com.srm.credit.application.currency.ExchangeRateQueryService;
 import br.com.srm.credit.application.pricing.PricingSimulationApplicationService;
 import br.com.srm.credit.domain.pricing.ReceivablePricingService;
 import br.com.srm.credit.domain.pricing.strategy.CommercialReceivablePricingStrategy;
@@ -37,7 +38,10 @@ public class PricingConfiguration {
 
     @Bean
     public PricingSimulationApplicationService pricingSimulationApplicationService(
-            ReceivablePricingService receivablePricingService, MeterRegistry meterRegistry) {
-        return new PricingSimulationApplicationService(receivablePricingService, meterRegistry);
+            ReceivablePricingService receivablePricingService,
+            ExchangeRateQueryService exchangeRateQueryService,
+            MeterRegistry meterRegistry) {
+        return new PricingSimulationApplicationService(
+                receivablePricingService, exchangeRateQueryService, meterRegistry);
     }
 }

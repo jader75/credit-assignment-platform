@@ -34,31 +34,34 @@ public class JdbcSettlementStatementReadRepository implements SettlementStatemen
         var filterParams = new MapSqlParameterSource();
         var where = buildWhere(filter, filterParams);
 
-        var listSql =
-                """
-                SELECT
-                    ca.operation_reference,
-                    cb.batch_reference,
-                    a.document_number,
-                        a.name,
-                        ca.payment_currency,
-                        ca.face_amount,
-                        ca.net_amount,
-                        ca.liquidated_at,
-                        ca.status
-                """
-                        + BASE_FROM
-                        + where
-                        + """
-
-                        ORDER BY ca.liquidated_at DESC, ca.id DESC
-                        LIMIT :limit OFFSET :offset
-                        """;
+        var listSql = new StringBuilder(
+                        """
+                        SELECT
+                            ca.operation_reference,
+                            cb.batch_reference,
+                            a.document_number,
+                            a.name,
+                            ca.payment_currency,
+                            ca.face_amount,
+                            ca.net_amount,
+                            ca.liquidated_at,
+                            ca.status
+                """)
+                .append(BASE_FROM)
+                .append(where)
+                .append(System.lineSeparator())
+                .append("ORDER BY ca.liquidated_at DESC, ca.id DESC")
+                .append(System.lineSeparator())
+                .append("LIMIT :limit OFFSET :offset")
+                .toString();
         var params = new MapSqlParameterSource(filterParams.getValues());
         params.addValue("limit", filter.size());
         params.addValue("offset", filter.page() * filter.size());
 
-        var countSql = "SELECT COUNT(*) " + BASE_FROM + where;
+        var countSql = new StringBuilder("SELECT COUNT(*) ")
+                .append(BASE_FROM)
+                .append(where)
+                .toString();
         var countParams = new MapSqlParameterSource(filterParams.getValues());
 
         List<SettlementStatementItem> items = jdbcTemplate.query(listSql, params, settlementStatementRowMapper());

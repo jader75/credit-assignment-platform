@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import br.com.srm.credit.application.settlement.SettlementStatementFilter;
 import br.com.srm.credit.application.settlement.SettlementStatementReadRepository;
 import br.com.srm.credit.bootstrap.CreditEngineApplication;
-import javax.sql.DataSource;
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +26,6 @@ class JdbcSettlementStatementReadRepositoryIT {
     @Autowired
     private SettlementStatementReadRepository repository;
 
-    @Autowired
-    private DataSource dataSource;
-
     @Container
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("credit_assignment_db")
@@ -47,11 +42,6 @@ class JdbcSettlementStatementReadRepositoryIT {
 
     @BeforeEach
     void setUp() {
-        Flyway.configure()
-                .dataSource(dataSource)
-                .locations("classpath:db/migration")
-                .load()
-                .migrate();
         jdbcTemplate.execute(
                 "TRUNCATE TABLE credit_assignments, credit_batches, assignors, receivable_types, currencies RESTART IDENTITY CASCADE");
         seedDatabase();

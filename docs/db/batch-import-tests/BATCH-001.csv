@@ -1,0 +1,3 @@
+operationReference,assignorDocumentNumber,assignorName,riskRating,receivableTypeCode,receivableTypeName,receivablePricingRuleCode,receivableTypeBaseSpread,receivableTypeActive,faceCurrencyCode,faceAmount,dueDate,baseTaxRate,termDays,paymentCurrencyCode,exchangeRate
+OP-001,12345678000199,Alfa Comercio LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,TRADE_RECEIVABLE,0.0150,true,BRL,1000.00,2026-07-20,0.0200,30,BRL,1.00000000
+OP-002,12345678000199,Alfa Comercio LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,TRADE_RECEIVABLE,0.0150,true,BRL,1500.00,2026-07-30,0.0225,45,USD,5.25000000
