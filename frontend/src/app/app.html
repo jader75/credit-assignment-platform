@@ -1,15 +1,16 @@
 <main class="page">
   <section class="hero">
     <div>
-      <p class="eyebrow">SRM Credit Engine</p>
-      <h1>Painel do operador</h1>
+      <p class="eyebrow">SRM Asset</p>
+      <h1>{{ pageTitle }}</h1>
       <p class="subtitle">
-        Interface mínima para simular precificação e consultar o extrato de liquidação.
+        Painel mínimo do operador para simular precificação e consultar o extrato de liquidação.
       </p>
     </div>
     <div class="status-box">
       <span>Backend</span>
       <strong>http://localhost:8080/api/v1</strong>
+      <small>Frontend em http://localhost:4200</small>
     </div>
   </section>
 
@@ -30,16 +31,20 @@
         </label>
 
         <label>
-          <span>Tipo</span>
+          <span>Tipo de recebível</span>
           <select name="receivableTypeCode" [(ngModel)]="simulation.receivableTypeCode">
-            <option *ngFor="let option of receivableTypeOptions" [value]="option">{{ option }}</option>
+            <option *ngFor="let option of receivableTypeOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
           </select>
         </label>
 
         <label>
-          <span>Regra</span>
+          <span>Regra de precificação</span>
           <select name="receivablePricingRuleCode" [(ngModel)]="simulation.receivablePricingRuleCode">
-            <option *ngFor="let option of ruleOptions" [value]="option">{{ option }}</option>
+            <option *ngFor="let option of ruleOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
           </select>
         </label>
 
@@ -61,14 +66,18 @@
         <label>
           <span>Moeda do título</span>
           <select name="faceCurrencyCode" [(ngModel)]="simulation.faceCurrencyCode">
-            <option *ngFor="let option of currencyOptions" [value]="option">{{ option }}</option>
+            <option *ngFor="let option of currencyOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
           </select>
         </label>
 
         <label>
           <span>Moeda de pagamento</span>
           <select name="paymentCurrencyCode" [(ngModel)]="simulation.paymentCurrencyCode">
-            <option *ngFor="let option of currencyOptions" [value]="option">{{ option }}</option>
+            <option *ngFor="let option of currencyOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
           </select>
         </label>
 
@@ -110,11 +119,26 @@
 
       <div *ngIf="simulationResult; else simulationEmpty" class="result-grid">
         <div><span>Operação</span><strong>{{ simulationResult.operationReference }}</strong></div>
-        <div><span>Regra</span><strong>{{ simulationResult.receivablePricingRuleCode }}</strong></div>
-        <div><span>Valor líquido</span><strong>{{ simulationResult.netAmount | number:'1.2-2' }}</strong></div>
-        <div><span>Desconto</span><strong>{{ simulationResult.discountedAmount | number:'1.2-2' }}</strong></div>
-        <div><span>Spread aplicado</span><strong>{{ simulationResult.appliedSpread | number:'1.4-4' }}</strong></div>
-        <div><span>Cross-currency</span><strong>{{ simulationResult.crossCurrency ? 'Sim' : 'Não' }}</strong></div>
+        <div>
+          <span>Regra</span>
+          <strong>{{ ruleLabel(simulationResult.receivablePricingRuleCode) }}</strong>
+        </div>
+        <div>
+          <span>Valor líquido</span>
+          <strong>{{ simulationResult.netAmount | number:'1.2-2' }}</strong>
+        </div>
+        <div>
+          <span>Desconto</span>
+          <strong>{{ simulationResult.discountedAmount | number:'1.2-2' }}</strong>
+        </div>
+        <div>
+          <span>Spread aplicado</span>
+          <strong>{{ simulationResult.appliedSpread | number:'1.4-4' }}</strong>
+        </div>
+        <div>
+          <span>Conversão cambial</span>
+          <strong>{{ simulationResult.crossCurrency ? 'Sim' : 'Não' }}</strong>
+        </div>
       </div>
 
       <ng-template #simulationEmpty>
@@ -158,7 +182,9 @@
         <span>Moeda</span>
         <select name="paymentCurrencyCode" [(ngModel)]="settlementFilter.paymentCurrencyCode">
           <option value="">Todas</option>
-          <option *ngFor="let option of currencyOptions" [value]="option">{{ option }}</option>
+          <option *ngFor="let option of currencyOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
         </select>
       </label>
       <label>
@@ -193,7 +219,7 @@
             <td>{{ item.batchReference }}</td>
             <td>{{ item.assignorName }}</td>
             <td>{{ item.assignorDocumentNumber }}</td>
-            <td>{{ item.paymentCurrencyCode }}</td>
+            <td>{{ currencyLabel(item.paymentCurrencyCode) }}</td>
             <td>{{ item.faceAmount | number:'1.2-2' }}</td>
             <td>{{ item.netAmount | number:'1.2-2' }}</td>
             <td>{{ item.liquidatedAt | date:'dd/MM/yyyy HH:mm' }}</td>

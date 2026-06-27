@@ -10,6 +10,11 @@ import {
   SettlementStatementPage,
 } from './models';
 
+type OptionItem = {
+  value: string;
+  label: string;
+};
+
 @Component({
   selector: 'app-root',
   imports: [CommonModule, FormsModule],
@@ -19,6 +24,8 @@ import {
 })
 export class App {
   private readonly api = inject(CreditEngineApiService);
+
+  protected readonly pageTitle = 'Plataforma de Cessão de Crédito SRM';
 
   protected readonly simulation: PricingSimulationRequest = {
     operationReference: 'OP-001',
@@ -43,18 +50,29 @@ export class App {
     size: 10,
   };
 
+  protected readonly currencyOptions: OptionItem[] = [
+    { value: 'BRL', label: 'Real brasileiro' },
+    { value: 'USD', label: 'Dólar americano' },
+  ];
+
+  protected readonly ruleOptions: OptionItem[] = [
+    { value: 'COMMERCIAL_RECEIVABLE', label: 'Duplicata mercantil' },
+    { value: 'POST_DATED_CHECK', label: 'Cheque pré-datado' },
+  ];
+
+  protected readonly receivableTypeOptions: OptionItem[] = [
+    { value: 'COMMERCIAL_RECEIVABLE', label: 'Duplicata mercantil' },
+    { value: 'POST_DATED_CHECK', label: 'Cheque pré-datado' },
+  ];
+
+  protected readonly genericErrorMessage =
+          'Nao foi possivel concluir a operacao no momento. Verifique os dados e tente novamente.';
+
   protected simulationResult: PricingSimulationResponse | null = null;
   protected statementPage: SettlementStatementPage | null = null;
   protected simulationLoading = false;
   protected statementLoading = false;
   protected errorMessage = '';
-  protected readonly currencyOptions = ['BRL', 'USD'];
-  protected readonly ruleOptions = ['COMMERCIAL_RECEIVABLE', 'POST_DATED_CHECK'];
-  protected readonly receivableTypeOptions = ['COMMERCIAL_RECEIVABLE', 'POST_DATED_CHECK'];
-
-  ngOnInit(): void {
-    this.loadStatement();
-  }
 
   protected simulate(): void {
     this.errorMessage = '';
@@ -111,6 +129,7 @@ export class App {
     this.settlementFilter.paymentCurrencyCode = '';
     this.settlementFilter.page = 0;
     this.settlementFilter.size = 10;
+    this.statementPage = null;
     this.loadStatement(0);
   }
 
@@ -132,11 +151,34 @@ export class App {
     return item.operationReference;
   }
 
+  protected currencyLabel(code: string): string {
+    return this.findLabel(this.currencyOptions, code);
+  }
+
+  protected ruleLabel(code: string): string {
+    return this.findLabel(this.ruleOptions, code);
+  }
+
+  protected receivableTypeLabel(code: string): string {
+    return this.findLabel(this.receivableTypeOptions, code);
+  }
+
+  private findLabel(options: OptionItem[], value: string): string {
+    return options.find((option) => option.value === value)?.label ?? value;
+  }
+
   private extractErrorMessage(error: unknown): string {
     const response = error as {
       error?: { message?: string; error?: string };
       message?: string;
     };
-    return response.error?.message ?? response.error?.error ?? response.message ?? 'Falha ao processar a requisicao.';
+    const message = response.error?.message ?? response.error?.error ?? response.message ?? '';
+    if (!message) {
+      return this.genericErrorMessage;
+    }
+    if (message.includes('Erro inesperado') || message.includes('Falha inesperada')) {
+      return this.genericErrorMessage;
+    }
+    return message;
   }
 }
