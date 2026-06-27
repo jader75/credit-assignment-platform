@@ -1,8 +1,9 @@
 package br.com.srm.credit.application.pricing;
 
+import br.com.srm.credit.application.currency.ExchangeRateQueryService;
 import br.com.srm.credit.domain.pricing.CreditPricingRequest;
+import br.com.srm.credit.domain.pricing.PricingRuleCode;
 import br.com.srm.credit.domain.pricing.ReceivablePricingService;
-import br.com.srm.credit.domain.pricing.ReceivableTypePricingProfile;
 import br.com.srm.credit.domain.shared.StructuredLog;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -10,45 +11,46 @@ import io.micrometer.core.instrument.Timer;
 public class PricingSimulationApplicationService {
 
     private final ReceivablePricingService receivablePricingService;
+    private final ExchangeRateQueryService exchangeRateQueryService;
     private final MeterRegistry meterRegistry;
 
     public PricingSimulationApplicationService(
-            ReceivablePricingService receivablePricingService, MeterRegistry meterRegistry) {
+            ReceivablePricingService receivablePricingService,
+            ExchangeRateQueryService exchangeRateQueryService,
+            MeterRegistry meterRegistry) {
         this.receivablePricingService = receivablePricingService;
+        this.exchangeRateQueryService = exchangeRateQueryService;
         this.meterRegistry = meterRegistry;
     }
 
     public PricingSimulationResult simulate(PricingSimulationCommand command) {
         var sample = Timer.start(meterRegistry);
-        var request = new CreditPricingRequest(
-                command.operationReference(),
-                command.receivablePricingRuleCode(),
-                command.faceCurrencyCode(),
-                command.paymentCurrencyCode(),
-                command.faceAmount(),
-                command.baseTaxRate(),
-                command.termDays(),
-                command.exchangeRate());
-
-        var receivableType = new ReceivableTypePricingProfile(
-                command.receivableTypeCode(),
-                command.receivablePricingRuleCode(),
-                command.receivableTypeBaseSpread(),
-                command.receivableTypeActive());
 
         try {
+            var exchangeRate =
+                    exchangeRateQueryService.resolve(command.faceCurrencyCode(), command.paymentCurrencyCode());
+            var request = new CreditPricingRequest(
+                    command.operationReference(),
+                    PricingRuleCode.fromCode(command.receivableTypeCode()),
+                    command.faceCurrencyCode(),
+                    command.paymentCurrencyCode(),
+                    command.faceAmount(),
+                    command.baseTaxRate(),
+                    command.termDays(),
+                    exchangeRate);
+
             StructuredLog.info()
                     .step("start")
                     .append(
                             command,
                             "operationReference",
-                            "receivablePricingRuleCode",
+                            "receivableTypeCode",
                             "faceCurrencyCode",
                             "paymentCurrencyCode",
                             "termDays")
                     .log();
 
-            var response = receivablePricingService.price(request, receivableType);
+            var response = receivablePricingService.price(request);
 
             meterRegistry
                     .counter("credit.pricing.simulation.requests", "outcome", "success")
@@ -75,7 +77,7 @@ public class PricingSimulationApplicationService {
                     .increment();
             StructuredLog.warn()
                     .step("error")
-                    .append(command, "operationReference", "receivablePricingRuleCode")
+                    .append(command, "operationReference", "receivableTypeCode")
                     .append("reason", exception.getMessage())
                     .log();
             throw exception;

@@ -71,7 +71,7 @@ class ApiExceptionHandlerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody()).extracting(ApiErrorResponse::message).isEqualTo("Requisicao invalida.");
+        assertThat(response.getBody()).extracting(ApiErrorResponse::message).isEqualTo("Requisição inválida.");
     }
 
     @Test
@@ -82,7 +82,7 @@ class ApiExceptionHandlerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody()).extracting(ApiErrorResponse::message).isEqualTo("Corpo da requisicao invalido.");
+        assertThat(response.getBody()).extracting(ApiErrorResponse::message).isEqualTo("Corpo da requisição inválido.");
     }
 
     @Test
@@ -94,7 +94,7 @@ class ApiExceptionHandlerTest {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody())
                 .extracting(ApiErrorResponse::message)
-                .isEqualTo("Nao foi possivel processar a requisicao.");
+                .isEqualTo("Não foi possível processar a requisição.");
     }
 
     private static MockHttpServletRequest request(String uri) {

@@ -17,8 +17,6 @@ class ReceivablePricingServiceTest {
 
     @Test
     void shouldPriceCommercialReceivableInSameCurrency() {
-        var receivableType =
-                ReceivableTypePricingProfile.of("TRADE_RECEIVABLE", "TRADE_RECEIVABLE", new BigDecimal("0.0150"), true);
         var request = CreditPricingRequest.of(
                 "OP-001",
                 "TRADE_RECEIVABLE",
@@ -29,7 +27,7 @@ class ReceivablePricingServiceTest {
                 30,
                 new BigDecimal("1.00000000"));
 
-        var result = service.price(request, receivableType);
+        var result = service.price(request);
 
         assertThat(result.operationReference()).isEqualTo("OP-001");
         assertThat(result.receivablePricingRuleCode()).isEqualTo("TRADE_RECEIVABLE");
@@ -41,8 +39,6 @@ class ReceivablePricingServiceTest {
 
     @Test
     void shouldPricePostDatedCheckInCrossCurrency() {
-        var receivableType =
-                ReceivableTypePricingProfile.of("POST_DATED_CHECK", "POST_DATED_CHECK", new BigDecimal("0.0250"), true);
         var request = CreditPricingRequest.of(
                 "OP-002",
                 "POST_DATED_CHECK",
@@ -53,7 +49,7 @@ class ReceivablePricingServiceTest {
                 30,
                 new BigDecimal("5.00000000"));
 
-        var result = service.price(request, receivableType);
+        var result = service.price(request);
 
         assertThat(result.receivablePricingRuleCode()).isEqualTo("POST_DATED_CHECK");
         assertThat(result.appliedSpread()).isEqualByComparingTo("0.0250");
@@ -66,8 +62,6 @@ class ReceivablePricingServiceTest {
     void shouldFailWhenNoStrategyExistsForRuleCode() {
         var resolver = new PricingStrategyResolver(List.of(new CommercialReceivablePricingStrategy()));
         var serviceWithoutPostDatedCheckStrategy = new ReceivablePricingService(resolver);
-        var receivableType =
-                ReceivableTypePricingProfile.of("POST_DATED_CHECK", "POST_DATED_CHECK", new BigDecimal("0.0250"), true);
         var request = CreditPricingRequest.of(
                 "OP-003",
                 "POST_DATED_CHECK",
@@ -78,35 +72,15 @@ class ReceivablePricingServiceTest {
                 30,
                 new BigDecimal("1.00000000"));
 
-        assertThatThrownBy(() -> serviceWithoutPostDatedCheckStrategy.price(request, receivableType))
+        assertThatThrownBy(() -> serviceWithoutPostDatedCheckStrategy.price(request))
                 .isInstanceOf(PricingBusinessException.class)
                 .hasMessage(PricingMessage.PRICING_RULE_NOT_FOUND.message());
     }
 
     @Test
     void shouldFailWhenRequestIsNull() {
-        var receivableType =
-                ReceivableTypePricingProfile.of("TRADE_RECEIVABLE", "TRADE_RECEIVABLE", new BigDecimal("0.0150"), true);
-
-        assertThatThrownBy(() -> service.price(null, receivableType))
+        assertThatThrownBy(() -> service.price(null))
                 .isInstanceOf(PricingValidationException.class)
                 .hasMessage(PricingMessage.PRICING_REQUEST_INVALID.message());
-    }
-
-    @Test
-    void shouldFailWhenReceivableTypeIsNull() {
-        var request = CreditPricingRequest.of(
-                "OP-004",
-                "TRADE_RECEIVABLE",
-                "BRL",
-                "BRL",
-                new BigDecimal("1000.00"),
-                new BigDecimal("0.0200"),
-                30,
-                new BigDecimal("1.00000000"));
-
-        assertThatThrownBy(() -> service.price(request, null))
-                .isInstanceOf(PricingValidationException.class)
-                .hasMessage(PricingMessage.RECEIVABLE_TYPE_INVALID.message());
     }
 }

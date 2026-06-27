@@ -1,7 +1,13 @@
 package br.com.srm.credit.infrastructure.web;
 
+import br.com.srm.credit.domain.batch.BatchImportBusinessException;
+import br.com.srm.credit.domain.batch.BatchImportValidationException;
+import br.com.srm.credit.domain.currency.CurrencyBusinessException;
+import br.com.srm.credit.domain.currency.CurrencyValidationException;
 import br.com.srm.credit.domain.pricing.PricingBusinessException;
 import br.com.srm.credit.domain.pricing.PricingValidationException;
+import br.com.srm.credit.domain.settlement.SettlementBusinessException;
+import br.com.srm.credit.domain.settlement.SettlementValidationException;
 import br.com.srm.credit.domain.shared.StructuredLog;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.OffsetDateTime;
@@ -28,9 +34,81 @@ public class ApiExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI());
     }
 
+    @ExceptionHandler(CurrencyValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleCurrencyValidation(
+            CurrencyValidationException exception, HttpServletRequest request) {
+        StructuredLog.warn()
+                .step("validation")
+                .append("type", exception.getClass().getSimpleName())
+                .append("path", request.getRequestURI())
+                .append("reason", exception.getMessage())
+                .log();
+        return build(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI());
+    }
+
     @ExceptionHandler(PricingBusinessException.class)
     public ResponseEntity<ApiErrorResponse> handlePricingBusiness(
             PricingBusinessException exception, HttpServletRequest request) {
+        StructuredLog.warn()
+                .step("business")
+                .append("type", exception.getClass().getSimpleName())
+                .append("path", request.getRequestURI())
+                .append("reason", exception.getMessage())
+                .log();
+        return build(HttpStatus.UNPROCESSABLE_CONTENT, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(CurrencyBusinessException.class)
+    public ResponseEntity<ApiErrorResponse> handleCurrencyBusiness(
+            CurrencyBusinessException exception, HttpServletRequest request) {
+        StructuredLog.warn()
+                .step("business")
+                .append("type", exception.getClass().getSimpleName())
+                .append("path", request.getRequestURI())
+                .append("reason", exception.getMessage())
+                .log();
+        return build(HttpStatus.UNPROCESSABLE_CONTENT, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(SettlementValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleSettlementValidation(
+            SettlementValidationException exception, HttpServletRequest request) {
+        StructuredLog.warn()
+                .step("validation")
+                .append("type", exception.getClass().getSimpleName())
+                .append("path", request.getRequestURI())
+                .append("reason", exception.getMessage())
+                .log();
+        return build(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(SettlementBusinessException.class)
+    public ResponseEntity<ApiErrorResponse> handleSettlementBusiness(
+            SettlementBusinessException exception, HttpServletRequest request) {
+        StructuredLog.warn()
+                .step("business")
+                .append("type", exception.getClass().getSimpleName())
+                .append("path", request.getRequestURI())
+                .append("reason", exception.getMessage())
+                .log();
+        return build(HttpStatus.UNPROCESSABLE_CONTENT, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(BatchImportValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleBatchImportValidation(
+            BatchImportValidationException exception, HttpServletRequest request) {
+        StructuredLog.warn()
+                .step("validation")
+                .append("type", exception.getClass().getSimpleName())
+                .append("path", request.getRequestURI())
+                .append("reason", exception.getMessage())
+                .log();
+        return build(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(BatchImportBusinessException.class)
+    public ResponseEntity<ApiErrorResponse> handleBatchImportBusiness(
+            BatchImportBusinessException exception, HttpServletRequest request) {
         StructuredLog.warn()
                 .step("business")
                 .append("type", exception.getClass().getSimpleName())
@@ -45,7 +123,7 @@ public class ApiExceptionHandler {
             MethodArgumentNotValidException exception, HttpServletRequest request) {
         var message = exception.getBindingResult().getFieldError() != null
                 ? exception.getBindingResult().getFieldError().getDefaultMessage()
-                : "Requisicao invalida.";
+                : "Requisição inválida.";
         StructuredLog.warn()
                 .step("validation")
                 .append("type", exception.getClass().getSimpleName())
@@ -62,9 +140,9 @@ public class ApiExceptionHandler {
                 .step("validation")
                 .append("type", exception.getClass().getSimpleName())
                 .append("path", request.getRequestURI())
-                .append("reason", "Corpo da requisicao invalido.")
+                .append("reason", "Corpo da requisição inválido.")
                 .log();
-        return build(HttpStatus.BAD_REQUEST, "Corpo da requisicao invalido.", request.getRequestURI());
+        return build(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido.", request.getRequestURI());
     }
 
     @ExceptionHandler(Exception.class)
@@ -76,7 +154,7 @@ public class ApiExceptionHandler {
                 .append("reason", exception.getMessage())
                 .log();
         return build(
-                HttpStatus.INTERNAL_SERVER_ERROR, "Nao foi possivel processar a requisicao.", request.getRequestURI());
+                HttpStatus.INTERNAL_SERVER_ERROR, "Não foi possível processar a requisição.", request.getRequestURI());
     }
 
     private static ResponseEntity<ApiErrorResponse> build(HttpStatus status, String message, String path) {

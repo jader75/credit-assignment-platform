@@ -1,5 +1,7 @@
 package br.com.srm.credit.infrastructure.persistence.entity;
 
+import br.com.srm.credit.domain.settlement.SettlementBusinessException;
+import br.com.srm.credit.domain.settlement.SettlementMessage;
 import br.com.srm.credit.domain.shared.CreditAssignmentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,6 +18,8 @@ import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "credit_assignments")
@@ -40,6 +44,7 @@ public class CreditAssignmentEntity {
     @Column(name = "operation_reference", nullable = false, unique = true, length = 50)
     private String operationReference;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "face_currency", nullable = false, length = 3)
     private String faceCurrencyCode;
 
@@ -58,6 +63,7 @@ public class CreditAssignmentEntity {
     @Column(name = "term_days", nullable = false)
     private Integer termDays;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "payment_currency", nullable = false, length = 3)
     private String paymentCurrencyCode;
 
@@ -193,5 +199,25 @@ public class CreditAssignmentEntity {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void liquidate(OffsetDateTime liquidatedAt) {
+        changeStatus(CreditAssignmentStatus.LIQUIDATED, liquidatedAt);
+    }
+
+    public void changeStatus(CreditAssignmentStatus targetStatus, OffsetDateTime changedAt) {
+        if (targetStatus == null) {
+            throw new SettlementBusinessException(SettlementMessage.TARGET_STATUS_INVALID);
+        }
+        if (this.status == CreditAssignmentStatus.LIQUIDATED && targetStatus != CreditAssignmentStatus.LIQUIDATED) {
+            throw new SettlementBusinessException(SettlementMessage.OPERATION_ALREADY_LIQUIDATED);
+        }
+        if (targetStatus == CreditAssignmentStatus.LIQUIDATED) {
+            this.status = targetStatus;
+            this.liquidatedAt = changedAt;
+            return;
+        }
+        this.status = targetStatus;
+        this.liquidatedAt = null;
     }
 }

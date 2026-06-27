@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "exchange_rates")
@@ -20,9 +22,11 @@ public class ExchangeRateEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "from_currency", nullable = false, length = 3)
     private String fromCurrencyCode;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "to_currency", nullable = false, length = 3)
     private String toCurrencyCode;
 
@@ -68,6 +72,19 @@ public class ExchangeRateEntity {
 
     public BigDecimal getRate() {
         return rate;
+    }
+
+    public void update(
+            String fromCurrencyCode,
+            String toCurrencyCode,
+            BigDecimal rate,
+            OffsetDateTime quotedAt,
+            ExchangeRateSource source) {
+        this.fromCurrencyCode = fromCurrencyCode;
+        this.toCurrencyCode = toCurrencyCode;
+        this.rate = rate;
+        this.quotedAt = quotedAt;
+        this.source = source;
     }
 
     public OffsetDateTime getQuotedAt() {

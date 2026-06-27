@@ -3,7 +3,6 @@ package br.com.srm.credit.infrastructure.web.pricing;
 import br.com.srm.credit.application.pricing.PricingSimulationApplicationService;
 import br.com.srm.credit.application.pricing.PricingSimulationCommand;
 import br.com.srm.credit.application.pricing.PricingSimulationResult;
-import br.com.srm.credit.domain.pricing.PricingRuleCode;
 import br.com.srm.credit.infrastructure.web.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,15 +49,11 @@ public class PricingSimulationController {
         var command = new PricingSimulationCommand(
                 request.operationReference(),
                 request.receivableTypeCode(),
-                PricingRuleCode.fromCode(request.receivablePricingRuleCode()),
-                request.receivableTypeBaseSpread(),
-                request.receivableTypeActive(),
                 request.faceCurrencyCode(),
                 request.paymentCurrencyCode(),
                 request.faceAmount(),
                 request.baseTaxRate(),
-                request.termDays(),
-                request.exchangeRate());
+                request.termDays());
 
         PricingSimulationResult result = pricingSimulationApplicationService.simulate(command);
         return ResponseEntity.status(HttpStatus.OK).body(map(result));
