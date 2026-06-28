@@ -1,6 +1,6 @@
-﻿<main class="page">
+<main class="page">
   <section class="hero">
-    <div>
+    <div class="hero-copy">
       <p class="eyebrow">SRM Asset</p>
       <h1>{{ pageTitle }}</h1>
       <p class="subtitle">
@@ -8,11 +8,49 @@
         administrar taxas de câmbio.
       </p>
     </div>
-    <div class="status-box">
-      <span>Backend</span>
-      <strong>http://localhost:8080/api/v1</strong>
-      <small>Frontend em http://localhost:4200</small>
+
+    <div class="auth-box" *ngIf="!isAuthenticated; else authenticatedBox">
+      <div class="auth-box-header">
+        <p class="panel-kicker">Acesso</p>
+        <h2>Entrar no painel</h2>
+      </div>
+
+      <form class="login-form" (ngSubmit)="login()">
+        <label>
+          <span>Usuário</span>
+          <input name="loginUsername" [(ngModel)]="loginUsername" autocomplete="username" />
+        </label>
+        <label>
+          <span>Senha</span>
+          <input
+            name="loginPassword"
+            type="password"
+            [(ngModel)]="loginPassword"
+            autocomplete="current-password"
+          />
+        </label>
+        <div class="actions login-actions">
+          <button type="submit" [disabled]="loginLoading">{{ loginLoading ? 'Entrando...' : 'Entrar' }}</button>
+        </div>
+      </form>
+      <div class="login-feedback">
+        <p *ngIf="loginError" class="error">{{ loginError }}</p>
+      </div>
     </div>
+
+    <ng-template #authenticatedBox>
+      <div class="auth-box">
+        <div class="auth-box-header">
+          <p class="panel-kicker">Sessão ativa</p>
+          <h2>{{ authenticatedUser }}</h2>
+        </div>
+        <p class="form-note">Perfis: {{ authenticatedRoleLabels.join(', ') }}</p>
+        <div class="actions login-actions">
+          <button type="button" class="ghost-button" (click)="logout()">Sair</button>
+        </div>
+        <div class="login-feedback"></div>
+      </div>
+    </ng-template>
   </section>
 
   <nav class="subnav" aria-label="Secoes do painel">
@@ -42,7 +80,7 @@
             <h2>Recebível</h2>
             <p class="form-note">Informe os dados da operação. A estratégia e o spread são derivados do tipo.</p>
           </div>
-          <button type="button" class="ghost-button" (click)="simulateExample()">Carregar exemplo</button>
+          <button type="button" class="ghost-button" (click)="simulateExample()">Preencher exemplo</button>
         </header>
 
         <form class="form" (ngSubmit)="simulate()">
@@ -128,8 +166,18 @@
             <strong>{{ simulationResult.appliedSpread | number:'1.4-4' }}</strong>
           </div>
           <div>
-            <span>Conversão cambial</span>
-            <strong>{{ simulationResult.crossCurrency ? 'Sim' : 'Não' }}</strong>
+            <div class="conversion-headline">
+              <span class="conversion-meta-label">Conversão cambial</span>
+              <span class="conversion-badge" [class.is-on]="simulationResult.crossCurrency">
+                {{ simulationResult.crossCurrency ? 'Sim' : 'Não' }}
+              </span>
+            </div>
+            <div class="conversion-inline">
+              <span *ngIf="simulationResult.crossCurrency" class="conversion-meta-label">Taxa utilizada</span>
+              <strong *ngIf="simulationResult.crossCurrency" class="conversion-rate-value">
+                {{ simulationResult.exchangeRate | number:'1.2-8' }}
+              </strong>
+            </div>
           </div>
         </div>
 
@@ -151,7 +199,7 @@
         </div>
         <div class="panel-actions">
           <button type="button" class="ghost-button" (click)="resetFilters()">Limpar filtros</button>
-          <button type="button" (click)="loadStatement()">Recarregar</button>
+          <button type="button" (click)="loadStatement()">Atualizar lista</button>
         </div>
       </header>
 
@@ -261,7 +309,7 @@
         <div class="panel-actions">
           <button type="button" class="ghost-button" (click)="resetExchangeRateForm()">Novo registro</button>
           <button type="button" (click)="loadExchangeRates()" [disabled]="exchangeRatesLoading">
-            {{ exchangeRatesLoading ? 'Atualizando...' : 'Recarregar' }}
+            {{ exchangeRatesLoading ? 'Atualizando...' : 'Atualizar taxas' }}
           </button>
         </div>
       </header>
@@ -307,7 +355,7 @@
         <div class="actions">
           <button type="button" class="ghost-button" (click)="resetExchangeRateForm()">Limpar</button>
           <button type="submit" [disabled]="exchangeRateSaving">
-            {{ exchangeRateSaving ? 'Salvando...' : (exchangeRateForm.id === null ? 'Cadastrar' : 'Atualizar') }}
+            {{ exchangeRateSaving ? 'Salvando...' : 'Salvar' }}
           </button>
         </div>
       </form>
@@ -430,7 +478,7 @@
         <div class="panel-actions">
           <button type="button" class="ghost-button" (click)="resetOperationFilters()">Limpar filtros</button>
           <button type="button" (click)="loadOperations()" [disabled]="operationLoading">
-            {{ operationLoading ? 'Atualizando...' : 'Recarregar' }}
+            {{ operationLoading ? 'Atualizando...' : 'Atualizar lista' }}
           </button>
         </div>
       </header>

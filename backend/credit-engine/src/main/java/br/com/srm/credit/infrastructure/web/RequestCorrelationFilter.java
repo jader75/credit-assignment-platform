@@ -11,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -44,6 +46,7 @@ public class RequestCorrelationFilter extends OncePerRequestFilter {
                     .append("path", request.getRequestURI())
                     .append("status", response.getStatus())
                     .append("durationMs", durationMs)
+                    .append("user", resolveAuthenticatedUser())
                     .log();
             MDC.remove(CORRELATION_ID_KEY);
             MDC.remove(TRANSACTION_ID_KEY);
@@ -64,5 +67,13 @@ public class RequestCorrelationFilter extends OncePerRequestFilter {
             return UUID.randomUUID().toString();
         }
         return transactionId;
+    }
+
+    private static String resolveAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        return authentication.getName();
     }
 }

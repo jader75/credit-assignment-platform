@@ -1,7 +1,9 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { AuthService } from './auth.service';
 import { CreditEngineApiService } from './credit-engine-api.service';
 import {
   BatchImportResult,
@@ -44,6 +46,7 @@ type ExchangeRateFormState = {
 })
 export class App implements OnInit {
   private readonly api = inject(CreditEngineApiService);
+  private readonly auth = inject(AuthService);
 
   protected readonly pageTitle = 'Plataforma de Cessão de Crédito SRM';
 
@@ -88,7 +91,6 @@ export class App implements OnInit {
   protected readonly exchangeRateSourceOptions: OptionItem[] = [
     { value: 'MANUAL', label: 'Manual' },
     { value: 'MOCK', label: 'Mock' },
-    { value: 'INTEGRATION', label: 'Integração' },
   ];
 
   protected readonly batchTemplate = `operationReference,assignorDocumentNumber,assignorName,riskRating,receivableTypeCode,receivableTypeName,faceCurrencyCode,faceAmount,dueDate,baseTaxRate,termDays,paymentCurrencyCode
@@ -103,6 +105,15 @@ OP-001,12345678901,Acme LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,BRL,1000.00,
 
   protected readonly genericErrorMessage =
     'Não foi possível concluir a operação no momento. Verifique os dados e tente novamente.';
+  protected readonly exchangeRateForbiddenMessage =
+    'Seu perfil não tem permissão para inclusão, edição e exclusão de taxas de câmbio.';
+  protected readonly operationForbiddenMessage =
+    'Seu perfil não tem permissão para alterar o status das operações.';
+
+  protected loginUsername = 'operator';
+  protected loginPassword = 'operator123';
+  protected loginLoading = false;
+  protected loginError = '';
 
   protected simulationResult: PricingSimulationResponse | null = null;
   protected statementPage: SettlementStatementPage | null = null;
@@ -133,8 +144,54 @@ OP-001,12345678901,Acme LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,BRL,1000.00,
   private batchFile: File | null = null;
 
   ngOnInit(): void {
-    this.loadCurrencies();
-    this.loadExchangeRates();
+    if (this.auth.isAuthenticated()) {
+      this.loadInitialData();
+    }
+  }
+
+  protected get isAuthenticated(): boolean {
+    return this.auth.isAuthenticated();
+  }
+
+  protected get authenticatedUser(): string {
+    return this.auth.username();
+  }
+
+  protected get authenticatedRoles(): string[] {
+    return this.auth.roles();
+  }
+
+  protected get authenticatedRoleLabels(): string[] {
+    return this.auth.roles().map((role) => this.roleLabel(role));
+  }
+
+  protected login(): void {
+    this.loginError = '';
+    this.loginLoading = true;
+    this.auth.login({ username: this.loginUsername, password: this.loginPassword }).subscribe({
+      next: () => {
+        this.loginLoading = false;
+        this.loadInitialData();
+      },
+      error: (error) => {
+        this.loginError = this.extractErrorMessage(error);
+        this.loginLoading = false;
+      },
+    });
+  }
+
+  protected logout(): void {
+    this.auth.logout();
+    this.simulationResult = null;
+    this.statementPage = null;
+    this.operationPage = null;
+    this.exchangeRates = [];
+    this.batchImportResult = null;
+    this.selectedOperation = null;
+    this.errorMessage = '';
+    this.exchangeRateError = '';
+    this.batchImportError = '';
+    this.operationError = '';
   }
 
   protected openSection(section: SectionKey): void {
@@ -259,7 +316,7 @@ OP-001,12345678901,Acme LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,BRL,1000.00,
         this.loadExchangeRates();
       },
       error: (error) => {
-        this.exchangeRateError = this.extractErrorMessage(error);
+        this.exchangeRateError = this.extractErrorMessage(error, this.exchangeRateForbiddenMessage);
         this.exchangeRateSaving = false;
       },
     });
@@ -293,7 +350,7 @@ OP-001,12345678901,Acme LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,BRL,1000.00,
         this.loadExchangeRates();
       },
       error: (error) => {
-        this.exchangeRateError = this.extractErrorMessage(error);
+        this.exchangeRateError = this.extractErrorMessage(error, this.exchangeRateForbiddenMessage);
         this.exchangeRateSaving = false;
       },
     });
@@ -418,7 +475,13 @@ OP-001,12345678901,Acme LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,BRL,1000.00,
   }
 
   protected sourceLabel(source: string): string {
-    return this.findLabel(this.exchangeRateSourceOptions, source);
+    return (
+      {
+        MANUAL: 'Manual',
+        MOCK: 'Mock',
+        INTEGRATION: 'Integração',
+      }[source] ?? this.findLabel(this.exchangeRateSourceOptions, source)
+    );
   }
 
   protected statusLabel(status: string): string {
@@ -458,6 +521,11 @@ OP-001,12345678901,Acme LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,BRL,1000.00,
     });
   }
 
+  private loadInitialData(): void {
+    this.loadCurrencies();
+    this.loadExchangeRates();
+  }
+
   private changeOperationStatus(item: SettlementOperationItem, targetStatus: SettlementOperationStatusRequest['targetStatus']): void {
     this.operationError = '';
     this.operationSaving = true;
@@ -468,7 +536,7 @@ OP-001,12345678901,Acme LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,BRL,1000.00,
         this.loadOperations();
       },
       error: (error) => {
-        this.operationError = this.extractErrorMessage(error);
+        this.operationError = this.extractErrorMessage(error, this.operationForbiddenMessage);
         this.operationSaving = false;
       },
     });
@@ -516,12 +584,36 @@ OP-001,12345678901,Acme LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,BRL,1000.00,
     return options.find((option) => option.value === value)?.label ?? value;
   }
 
-  private extractErrorMessage(error: unknown): string {
-    const response = error as {
-      error?: { message?: string; error?: string };
-      message?: string;
-    };
-    const message = response.error?.message ?? response.error?.error ?? response.message ?? '';
+  private extractErrorMessage(error: unknown, forbiddenMessage?: string): string {
+    const response = error as HttpErrorResponse;
+
+    if (response?.status === 0) {
+      return 'Não foi possível conectar ao servidor. Verifique a rede e tente novamente.';
+    }
+    if (response?.status === 401) {
+      return 'Sua sessão não está autenticada. Entre novamente.';
+    }
+    if (response?.status === 403) {
+      return forbiddenMessage ?? 'Seu perfil não tem permissão para executar esta ação.';
+    }
+    if (response?.status === 404) {
+      return 'Registro não encontrado para os filtros informados.';
+    }
+    if (response?.status === 409) {
+      return 'Já existe um registro com esses dados.';
+    }
+    if (response?.status === 422) {
+      return 'Alguns campos estão inválidos. Revise os dados e tente novamente.';
+    }
+    if (response?.status && response.status >= 500) {
+      return 'Falha inesperada no servidor. Tente novamente em instantes.';
+    }
+
+    const responseError = response?.error as { message?: string; error?: string } | string | undefined;
+    const message =
+      (typeof responseError === 'string'
+        ? responseError
+        : responseError?.message ?? responseError?.error ?? response?.message) ?? '';
     if (!message) {
       return this.genericErrorMessage;
     }
@@ -529,6 +621,13 @@ OP-001,12345678901,Acme LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,BRL,1000.00,
       return this.genericErrorMessage;
     }
     return message;
+  }
+
+  private roleLabel(code: string): string {
+    return {
+      ADMIN: 'Administrador',
+      OPERATOR: 'Operador',
+    }[code] ?? code;
   }
 
   private toDatetimeLocalValue(isoDateTime: string): string {
@@ -549,4 +648,6 @@ OP-001,12345678901,Acme LTDA,A,TRADE_RECEIVABLE,Duplicata Mercantil,BRL,1000.00,
     return `${year}-${month}-${day}`;
   }
 }
+
+
 

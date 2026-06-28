@@ -56,7 +56,7 @@ O arquivo `backend/credit-engine/src/main/resources/db/migration/V1__create_base
 
 Tambem ha indices para historico cambial, lote e consulta de liquidações.
 
-O `docker-compose.yml` sobe apenas o PostgreSQL. O schema fica a cargo do Flyway quando a aplicacao inicia.
+O `docker-compose.yml` sobe PostgreSQL e Redis. O schema fica a cargo do Flyway quando a aplicacao inicia.
 
 A documentação visual da modelagem está em [docs/diagrams/db/v1/README.md](docs/diagrams/db/v1/README.md) e o arquivo editável do diagrama está em [docs/diagrams/db/v1/credit-domain.drawio](docs/diagrams/db/v1/credit-domain.drawio).
 
@@ -66,6 +66,8 @@ A documentação visual da modelagem está em [docs/diagrams/db/v1/README.md](do
 - `credit_assignments` representa cada ítem do lote, com o snapshot de precificacao
 - `receivable_types` define o tipo do ativo e a regra base de "spread"
 - `exchange_rates` guarda o historico de câmbio com origem da taxa
+- o fluxo operacional de cotação usa Redis por par de moeda; a chave segue o formato `credit:exchange-rate:FROM:TO`
+- o banco fica como fallback de contingência apenas para taxas manuais/mockadas
 - `assignors` guarda o cedente e a sua classificação atual
 
 ## Qualidade
@@ -116,6 +118,8 @@ Para subir tudo de uma vez e aguardar os health checks:
 .\scripts\start-dev.ps1
 ```
 
+O script `start-dev.ps1` sobe PostgreSQL e Redis, aguarda os health checks dos dois e então inicia backend e frontend.
+
 Frontend:
 
 ```powershell
@@ -137,6 +141,28 @@ git push
 ```
 
 O teste de integracao sobe um PostgreSQL via Docker com Testcontainers e valida a inicializacao do contexto da aplicacao.
+
+### Trust store para a integração de câmbio
+
+A consulta externa de câmbio usa TLS validado pelo Java. Em algumas máquinas o JDK padrão pode não confiar no certificado raiz usado pelo endpoint da Frankfurter. Se isso acontecer, a aplicação vai cair no fallback local apesar de a URL estar correta.
+
+Regras práticas de setup:
+
+- Windows: o backend já tenta usar o trust store nativo `Windows-ROOT`.
+- Linux: use o trust store padrão da JVM ou importe o certificado raiz da sua distro/JVM.
+- JVM customizada: se o certificado não for confiável, importe a CA no `cacerts` ou aponte a JVM para um trust store compatível.
+
+Exemplo de importação manual em um trust store JKS:
+
+```powershell
+keytool -importcert -alias frankfurter-ca -file frankfurter-ca.crt -keystore truststore.jks
+```
+
+Se precisar apontar a JVM para o trust store:
+
+```powershell
+$env:JAVA_TOOL_OPTIONS='-Djavax.net.ssl.trustStore=C:\caminho\truststore.jks -Djavax.net.ssl.trustStorePassword=senha'
+```
 
 ## Backlog do desafio
 

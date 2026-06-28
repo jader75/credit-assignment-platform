@@ -3,6 +3,7 @@ package br.com.srm.credit.application.currency;
 import br.com.srm.credit.domain.currency.CurrencyBusinessException;
 import br.com.srm.credit.domain.currency.CurrencyMessage;
 import br.com.srm.credit.domain.currency.CurrencyValidationException;
+import br.com.srm.credit.domain.shared.ExchangeRateSource;
 import br.com.srm.credit.infrastructure.persistence.entity.ExchangeRateEntity;
 import br.com.srm.credit.infrastructure.persistence.repository.CurrencyJpaRepository;
 import br.com.srm.credit.infrastructure.persistence.repository.ExchangeRateJpaRepository;
@@ -20,7 +21,9 @@ public class ExchangeRateAdministrationApplicationService {
     }
 
     public List<ExchangeRateItem> list() {
-        return exchangeRateJpaRepository.findAllByOrderByQuotedAtDescIdDesc().stream()
+        return exchangeRateJpaRepository
+                .findAllBySourceInOrderByQuotedAtDescIdDesc(List.of(ExchangeRateSource.MANUAL, ExchangeRateSource.MOCK))
+                .stream()
                 .map(ExchangeRateAdministrationApplicationService::map)
                 .toList();
     }
@@ -28,6 +31,7 @@ public class ExchangeRateAdministrationApplicationService {
     public ExchangeRateItem create(ExchangeRateCommand command) {
         var normalized = normalize(command);
         validateCurrencies(normalized.fromCurrencyCode(), normalized.toCurrencyCode());
+        validateSource(normalized.source());
 
         var saved = exchangeRateJpaRepository.save(new ExchangeRateEntity(
                 normalized.fromCurrencyCode(),
@@ -45,6 +49,7 @@ public class ExchangeRateAdministrationApplicationService {
 
         var normalized = normalize(command);
         validateCurrencies(normalized.fromCurrencyCode(), normalized.toCurrencyCode());
+        validateSource(normalized.source());
 
         var exchangeRate = exchangeRateJpaRepository
                 .findById(id)
@@ -107,6 +112,12 @@ public class ExchangeRateAdministrationApplicationService {
                 command.rate(),
                 command.quotedAt(),
                 command.source());
+    }
+
+    private static void validateSource(ExchangeRateSource source) {
+        if (source == ExchangeRateSource.INTEGRATION) {
+            throw new CurrencyBusinessException(CurrencyMessage.EXCHANGE_RATE_SOURCE_NOT_SUPPORTED);
+        }
     }
 
     private static ExchangeRateItem map(ExchangeRateEntity entity) {

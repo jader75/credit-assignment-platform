@@ -141,10 +141,14 @@ function Write-PidFile {
 }
 
 Write-Host 'Subindo PostgreSQL...'
-docker compose up -d credit-postgres
+docker compose up -d credit-postgres credit-redis
 
 Wait-UntilReady -Name 'PostgreSQL' -TimeoutSeconds $TimeoutSeconds -PollSeconds $PollSeconds -Check {
     (docker inspect -f '{{.State.Health.Status}}' credit-postgres-db 2>$null) -eq 'healthy'
+}
+
+Wait-UntilReady -Name 'Redis' -TimeoutSeconds $TimeoutSeconds -PollSeconds $PollSeconds -Check {
+    (docker inspect -f '{{.State.Health.Status}}' credit-redis-cache 2>$null) -eq 'healthy'
 }
 
 try {

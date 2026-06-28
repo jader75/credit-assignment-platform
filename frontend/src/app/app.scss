@@ -1,4 +1,4 @@
-﻿:host {
+﻿﻿:host {
   display: block;
   min-height: 100vh;
   background: #f4f7fb;
@@ -23,11 +23,17 @@
 }
 
 .hero {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 420px);
+  gap: 24px;
   padding: 24px;
-  align-items: flex-start;
+  align-items: stretch;
+}
+
+.hero-copy {
+  display: grid;
+  gap: 8px;
+  align-content: start;
 }
 
 .eyebrow,
@@ -64,17 +70,37 @@ h1 {
   line-height: 1.45;
 }
 
-.status-box {
-  min-width: 280px;
-  padding: 16px;
+.auth-box {
+  width: 100%;
+  min-height: 280px;
+  padding: 20px;
   border-radius: 10px;
-  background: #eef4ff;
-  border: 1px solid #d7e4ff;
+  background: #f8fbff;
+  border: 1px solid #d9e1ec;
   display: grid;
-  gap: 6px;
+  align-content: start;
+  gap: 14px;
 }
 
-.status-box span,
+.auth-box-header {
+  display: grid;
+  gap: 4px;
+}
+
+.login-form {
+  display: grid;
+  gap: 12px;
+}
+
+.login-actions {
+  justify-content: flex-start;
+  margin-top: 4px;
+}
+
+.login-feedback {
+  min-height: 56px;
+}
+
 .result-grid span {
   font-size: 12px;
   color: #5e6c84;
@@ -284,6 +310,63 @@ button:disabled {
   gap: 4px;
 }
 
+.conversion-inline {
+  display: flex;
+  gap: 6px;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.conversion-headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.conversion-headline span:first-child {
+  font-size: 12px;
+  color: #5e6c84;
+  font-weight: 600;
+}
+
+.conversion-badge {
+  min-height: 22px;
+  padding: 0 12px;
+  padding-top: 3px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  color: #152033;
+  border: 1px solid #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.conversion-badge.is-on {
+  background: #e2fbe8;
+  color: #152033;
+  border-color: #b7ebc6;
+}
+
+.conversion-meta-label {
+  font-size: 12px;
+  color: #5e6c84;
+  font-weight: 600;
+}
+
+.conversion-rate-value {
+  font-size: 18px;
+  color: #152033;
+  font-weight: 700;
+  margin-left: auto;
+  text-align: right;
+}
+
 .result-grid strong {
   font-size: 18px;
 }
@@ -350,11 +433,7 @@ th {
   }
 
   .hero {
-    flex-direction: column;
-  }
-
-  .status-box {
-    width: 100%;
+    grid-template-columns: 1fr;
   }
 
   .pager {
@@ -362,4 +441,3 @@ th {
     align-items: flex-start;
   }
 }
-
