@@ -1,6 +1,7 @@
 package br.com.srm.credit.application.settlement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,6 +47,23 @@ class SettlementStatementApplicationServiceTest {
         assertThat(meterRegistry
                         .get("credit.settlement.statement.requests")
                         .tag("outcome", "success")
+                        .counter()
+                        .count())
+                .isEqualTo(1.0d);
+    }
+
+    @Test
+    void shouldCountFailureWhenRepositoryThrows() {
+        var filter = new SettlementStatementFilter(null, null, null, null, 0, 20);
+        when(settlementStatementReadRepository.search(filter)).thenThrow(new IllegalStateException("falha de leitura"));
+
+        assertThatThrownBy(() -> applicationService.search(filter))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("falha de leitura");
+
+        assertThat(meterRegistry
+                        .get("credit.settlement.statement.requests")
+                        .tag("outcome", "failure")
                         .counter()
                         .count())
                 .isEqualTo(1.0d);

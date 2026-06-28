@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class StructuredLogTest {
@@ -108,7 +109,58 @@ class StructuredLogTest {
         assertThat(rendered).doesNotContain("status=ACTIVE");
     }
 
+    @Test
+    void shouldRenderInheritedFieldsAndAcceptEmptyIncludeArray() {
+        var rendered = StructuredLog.info()
+                .append(new ChildPojo("OP-003", "ACTIVE", "PORTFOLIO"), new String[0])
+                .appendExcluding(new ChildPojo("OP-003", "ACTIVE", "PORTFOLIO"), null, " ", "secret")
+                .fields(Map.of("source", "api", "priority", 2))
+                .append(null, "ignored")
+                .append("", "ignored")
+                .append("nullable", (Object) null)
+                .render();
+
+        assertThat(rendered).contains("source=api");
+        assertThat(rendered).contains("priority=2");
+        assertThat(rendered).contains("nullable=null");
+        assertThat(rendered).contains("operationReference=OP-003");
+        assertThat(rendered).contains("status=ACTIVE");
+        assertThat(rendered).contains("portfolio=PORTFOLIO");
+        assertThat(rendered).doesNotContain("secret");
+    }
+
+    @Test
+    void shouldLogAllLevelsIncludingThrowableBranch() {
+        StructuredLog.trace().message("trace").log();
+        StructuredLog.debug().message("debug").log();
+        StructuredLog.info().message("info").log();
+        StructuredLog.warn().message("warn").log();
+        StructuredLog.error().message("error").log();
+        StructuredLog.error(new IllegalStateException("boom"))
+                .message("error-with-throwable")
+                .log();
+    }
+
     private record SampleEvent(String operationReference, String status, String secret) {}
+
+    private static class ParentPojo {
+        private final String portfolio;
+
+        private ParentPojo(String portfolio) {
+            this.portfolio = portfolio;
+        }
+    }
+
+    private static final class ChildPojo extends ParentPojo {
+        private final String operationReference;
+        private final String status;
+
+        private ChildPojo(String operationReference, String status, String portfolio) {
+            super(portfolio);
+            this.operationReference = operationReference;
+            this.status = status;
+        }
+    }
 
     private static LinkedHashMap<String, Object> attributes() {
         var attributes = new LinkedHashMap<String, Object>();
