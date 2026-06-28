@@ -85,6 +85,7 @@ foreach ($port in $Ports) {
 
 Write-Host 'Parando PostgreSQL...'
 docker compose stop credit-postgres
+docker compose stop credit-redis
 
 Wait-UntilStopped -Description 'PostgreSQL' -Check {
     try {
