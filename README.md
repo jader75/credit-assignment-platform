@@ -9,9 +9,11 @@ Plataforma em Java 21 para apoiar a cessao, a precificacao e a consulta analitic
 - `.githooks/pre-commit.ps1`: executa `./gradlew.bat spotlessApply` antes do commit
 - `.githooks/pre-push.ps1`: executa `./gradlew.bat clean check` antes do push
 - `docs/ai`: regras do desafio, decisões arquiteturais e padrões de código usados com apoio de IA
+- `docs/adr`: registro das decisoes arquiteturais do projeto
 - `docs/db/schema.sql`: schema de referência da base de dados
-- `docs/db/data.sql`: massa inicial ainda vazia
+- `docs/db/data.sql`: seed e dados de referencia para testes
 - `backend/credit-engine`: modulo inicial do backend com a aplicacao Spring Boot
+- `AI_USAGE.md`: registro critico do uso de IA na entrega
 
 ## Tecnologias configuradas
 
@@ -26,6 +28,24 @@ Plataforma em Java 21 para apoiar a cessao, a precificacao e a consulta analitic
 - Spotless com `palantirJavaFormat`
 - Testcontainers
 
+## Fundamentacao tecnica da stack
+
+O `build.gradle` deixa a escolha tecnica coerente com o problema proposto e com o prazo de entrega:
+
+- **Java 21**: LTS, tipagem forte e features modernas com bom encaixe para codigo financeiro que pede previsibilidade.
+- **Spring Boot**: ecossistema maduro para REST, validacao, seguranca, health checks e configuracao padronizada.
+- **Spring Data JPA + PostgreSQL**: persistencia relacional com suporte a ACID, transacao e modelagem consistente do dominio.
+- **Flyway**: controle de evolucao de schema com versionamento rastreavel.
+- **Redis**: cache operacional para taxa de cambio por par de moeda.
+- **Spring Security**: autenticacao e protecao basica dos endpoints.
+- **Validation**: regras de entrada e protecao contra payload invalido.
+- **Actuator + Micrometer + Prometheus**: observabilidade minima para operacao e debug.
+- **springdoc-openapi**: documentacao da API a partir do contrato exposto.
+- **Testcontainers**: testes mais proximos do ambiente real, principalmente para banco.
+- **ArchUnit**: reforco das fronteiras arquiteturais.
+- **Spotless + Palantir Java Format**: consistencia de formato.
+- **JaCoCo**: medicao de cobertura como sinal de qualidade, nao como fim em si.
+
 ## Estrutura atual
 
 ```text
@@ -34,14 +54,35 @@ Plataforma em Java 21 para apoiar a cessao, a precificacao e a consulta analitic
 │   └── credit-engine/
 ├── docs/
 │   ├── ai/
+│   ├── adr/
+│   │   ├── 0001-...0008.md
 │   ├── api/
+│   ├── c4/
+│   │   ├── README_v1.md
+│   │   └── README_v2.md
 │   └── db/
+│       ├── batch-import-tests/
+│       ├── diagrams/
+│       │   ├── v1/
+│       │   └── v2/
+│       ├── data.sql
+│       └── schema.sql
 ├── frontend/
+├── scripts/
 ├── .githooks/
+├── AI_USAGE.md
 ├── build.gradle
+├── docker-compose.yml
+├── gradle/
+├── gradlew
+├── gradlew.bat
 ├── settings.gradle
-└── gradlew.bat
+├── agent.md
+├── LICENSE
+└── README.md
 ```
+
+Os diretórios acima representam a estrutura funcional da entrega. Outros arquivos de suporte existem no repositório, mas foram omitidos da arvore para manter a leitura objetiva.
 
 ## Banco de dados
 
@@ -58,7 +99,9 @@ Tambem ha indices para historico cambial, lote e consulta de liquidações.
 
 O `docker-compose.yml` sobe PostgreSQL e Redis. O schema fica a cargo do Flyway quando a aplicacao inicia.
 
-A documentação visual da modelagem está em [docs/diagrams/db/v1/README.md](docs/diagrams/db/v1/README.md) e o arquivo editável do diagrama está em [docs/diagrams/db/v1/credit-domain.drawio](docs/diagrams/db/v1/credit-domain.drawio).
+A documentacao visual da modelagem esta em [docs/db/diagrams/v1/README.md](docs/db/diagrams/v1/README.md) e o arquivo editavel do diagrama esta em [docs/db/diagrams/v1/credit-domain.drawio](docs/db/diagrams/v1/credit-domain.drawio).
+
+O estado de apoio e evolucao da modelagem fica documentado em [docs/db/diagrams/v2/README.md](docs/db/diagrams/v2/README.md).
 
 ## Modelo do dominio
 
@@ -100,6 +143,8 @@ As regras consolidadas do desafio e as decisoes usadas para orientar o desenvolv
 - [docs/ai/project-rules.md](docs/ai/project-rules.md)
 - [docs/ai/architecture.md](docs/ai/architecture.md)
 - [docs/ai/coding-standards.md](docs/ai/coding-standards.md)
+- [docs/adr/README.md](docs/adr/README.md)
+- [AI_USAGE.md](AI_USAGE.md)
 
 O `agent.md` fica reservado para instrucoes operacionais do agente.
 
@@ -237,21 +282,22 @@ $env:JAVA_TOOL_OPTIONS='-Djavax.net.ssl.trustStore=C:\caminho\truststore.jks -Dj
   - importação de lotes por arquivo para alimentar `credit_batches` e `credit_assignments`
   - mesa operacional para liquidacao e alteracao de status de recebiveis
 
-### Em andamento
-
 - **Story 014** - Resiliência e segurança básica
   - integração com Frankfurter para consulta de câmbio
-  - fallback em `exchange_rates`
-  - retry e circuit breaker
-  - timeout curto no cliente HTTP
-  - JWT básico no backend
-  - rastreabilidade de usuário e melhoria futura de hardening
+  - Redis como cache operacional por par de moeda
+  - fallback em base manual/mock
+  - retry, circuit breaker e timeout curto no cliente HTTP
+  - JWT basico no backend
+  - rastreabilidade de usuario e logs de auditoria basica
 
-### Próximas stories
+### Fechamento da entrega
 
-- **Story 015** - Documentação e entrega
+- **Story 015** - Documentação e entrega final
   - `AI_USAGE.md`
   - diagrama C4
   - diagrama ER
   - SQL DDL final
-  - "tag" da versão entregue
+  - ajustes finais de cobertura e gaps de teste
+  - consolidacao do README e do estado final dos artefatos
+  - validacao final concluida
+  - tag da versao entregue: pendente de solicitacao explicita
