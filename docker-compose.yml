@@ -18,5 +18,17 @@ services:
       timeout: 5s
       retries: 5
 
+  credit-redis:
+    image: redis:7-alpine
+    container_name: credit-redis-cache
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   postgres_master_data:

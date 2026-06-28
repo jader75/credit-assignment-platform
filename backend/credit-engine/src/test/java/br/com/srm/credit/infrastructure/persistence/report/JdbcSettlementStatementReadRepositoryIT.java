@@ -17,7 +17,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-@SpringBootTest(classes = CreditEngineApplication.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(
+        classes = CreditEngineApplication.class,
+        webEnvironment = SpringBootTest.WebEnvironment.NONE,
+        properties = "credit.exchange-rate.redis.refresh-enabled=false")
 class JdbcSettlementStatementReadRepositoryIT {
 
     @Autowired

@@ -16,9 +16,42 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 server:
   port: ${SERVER_PORT:8080}
+
+credit:
+  exchange-rate:
+    frankfurter:
+      base-url: ${FRANKFURTER_BASE_URL:https://api.frankfurter.dev}
+      timeout-ms: ${FRANKFURTER_TIMEOUT_MS:3000}
+      retry:
+        max-attempts: ${FRANKFURTER_MAX_ATTEMPTS:3}
+        backoff-ms: ${FRANKFURTER_BACKOFF_MS:200}
+      circuit-breaker:
+        failure-threshold: ${FRANKFURTER_CIRCUIT_FAILURE_THRESHOLD:3}
+        open-duration-ms: ${FRANKFURTER_CIRCUIT_OPEN_DURATION_MS:30000}
+    redis:
+      ttl-seconds: ${EXCHANGE_RATE_REDIS_TTL_SECONDS:90}
+      refresh-interval-ms: ${EXCHANGE_RATE_REDIS_REFRESH_INTERVAL_MS:30000}
+      key-prefix: ${EXCHANGE_RATE_REDIS_KEY_PREFIX:credit:exchange-rate}
+      refresh-enabled: ${EXCHANGE_RATE_REDIS_REFRESH_ENABLED:true}
+  security:
+    jwt:
+      issuer: ${JWT_ISSUER:credit-engine}
+      secret: ${JWT_SECRET:credit-engine-dev-secret-change-me-please-32bytes}
+      expiration-minutes: ${JWT_EXPIRATION_MINUTES:480}
+    users:
+      admin:
+        username: ${APP_ADMIN_USERNAME:admin}
+        password: ${APP_ADMIN_PASSWORD:admin123}
+      operator:
+        username: ${APP_OPERATOR_USERNAME:operator}
+        password: ${APP_OPERATOR_PASSWORD:operator123}
 
 management:
   endpoints:

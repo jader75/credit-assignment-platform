@@ -2,6 +2,7 @@ package br.com.srm.credit.infrastructure.configuration;
 
 import br.com.srm.credit.application.currency.CurrencyQueryService;
 import br.com.srm.credit.application.currency.ExchangeRateAdministrationApplicationService;
+import br.com.srm.credit.application.currency.ExchangeRateCacheClient;
 import br.com.srm.credit.application.currency.ExchangeRateQueryService;
 import br.com.srm.credit.infrastructure.persistence.repository.CurrencyJpaRepository;
 import br.com.srm.credit.infrastructure.persistence.repository.ExchangeRateJpaRepository;
@@ -23,7 +24,10 @@ public class CurrencyConfiguration {
     }
 
     @Bean
-    public ExchangeRateQueryService exchangeRateQueryService(ExchangeRateJpaRepository exchangeRateJpaRepository) {
-        return new ExchangeRateQueryService(exchangeRateJpaRepository);
+    public ExchangeRateQueryService exchangeRateQueryService(
+            CurrencyJpaRepository currencyJpaRepository,
+            ExchangeRateJpaRepository exchangeRateJpaRepository,
+            ExchangeRateCacheClient exchangeRateCacheClient) {
+        return new ExchangeRateQueryService(currencyJpaRepository, exchangeRateJpaRepository, exchangeRateCacheClient);
     }
 }

@@ -11,7 +11,8 @@ public enum CurrencyMessage {
     TO_CURRENCY_INVALID("C008", "A moeda de destino e obrigatoria."),
     CURRENCY_PAIR_INVALID("C009", "A moeda de origem e destino devem ser diferentes."),
     EXCHANGE_RATE_NOT_FOUND("C010", "A taxa de cambio nao foi encontrada."),
-    CURRENCY_NOT_FOUND("C011", "A moeda nao foi encontrada.");
+    CURRENCY_NOT_FOUND("C011", "A moeda nao foi encontrada."),
+    EXCHANGE_RATE_SOURCE_NOT_SUPPORTED("C012", "A origem da taxa de cambio nao e suportada para cadastro manual.");
 
     private final String code;
     private final String message;
