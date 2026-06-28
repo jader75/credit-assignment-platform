@@ -1,0 +1,146 @@
+# SRM Credit Engine - Prompt Base
+
+Use este arquivo como base para pedidos recorrentes neste projeto.
+
+## Regras de uso
+
+- Seja especifico sobre o objetivo.
+- Cite sempre os arquivos relevantes.
+- Diga se a resposta deve ser apenas analise, apenas alteracao ou analise + alteracao.
+- Se houver risco de quebra, peça para validar antes de fechar.
+- Prefira um foco por prompt.
+- Quando pedir mudancas de codigo, exija validacao com `spotlessApply`, `clean check` ou `npm run build` quando aplicavel.
+- Quando pedir documento, peça formato copiavel e objetivo.
+- Quando pedir PR, peça resumo, commits e riscos.
+
+## Modelo BDD
+
+```text
+Dado <contexto atual>
+E <restricoes ou decisoes ja tomadas>
+Quando <acao ou alteracao desejada>
+Entao <resultado esperado>
+E <criterios de validacao>
+```
+
+## Prompts frequentes
+
+### 1. Abrir ou continuar uma story
+
+```text
+Dado o estado atual do repositório e as diretrizes em docs/ai e agent.md
+Quando eu pedir para iniciar a story <numero>
+Entao analise o contexto, identifique os arquivos relevantes e proponha um plano objetivo
+E siga a ordem definida para a story sem criar escopo novo
+E mantenha os commits curtos e contextuais quando eu autorizar a execução
+```
+
+### 2. Refatorar uma area sem inflar escopo
+
+```text
+Dado a area <modulo/arquivo/tela>
+E as regras de negocio e arquitetura ja aprovadas
+Quando houver necessidade de refatoracao, ajuste visual ou correcao de bug
+Entao altere somente o que for necessario para atender o objetivo
+E preserve os padroes existentes do projeto
+E valide a alteracao com os testes ou build aplicavel
+```
+
+### 3. Revalidar modelagem de dados
+
+```text
+Dado as migrations do Flyway e os artefatos de documentacao de banco
+Quando eu pedir para revalidar schema, data seed e diagramas
+Entao compare o estado final do modelo com o que esta documentado
+E sinalize divergencias entre V1, V2 e artefatos de apoio
+E se houver diferenca estrutural, proponha nova versao do diagrama ou migration
+```
+
+### 4. Ajustar C4 ou diagramas
+
+```text
+Dado a documentacao de arquitetura atual
+Quando eu pedir ajustes no C4
+Entao mantenha a separacao entre niveis oficiais da entrega e niveis educacionais
+E use nomes curtos e legiveis nos containers e componentes
+E priorize leitura clara sobre excesso de detalhe visual
+```
+
+### 5. Atualizar README ou documentacao final
+
+```text
+Dado o estado final da story
+Quando eu pedir para atualizar o README ou docs finais
+Entao registre setup, validacao, decisoes e limitacoes reais
+E nao duplique texto bruto do desafio sem necessidade
+E mantenha as instrucoes copiaveis e objetivas
+```
+
+### 6. Preparar PR
+
+```text
+Dado a branch da story pronta para revisao
+Quando eu pedir insumos de PR
+Entao entregue um bloco Markdown copiavel com titulo, branch, base, resumo, commits, validacao e observacoes
+E mantenha o texto curto, direto e pronto para colar no GitHub ou GitLab
+```
+
+### 7. Dividir commits
+
+```text
+Dado varias alteracoes prontas para commit
+Quando eu pedir separacao em commits
+Entao proponha commits pequenos e com contexto claro
+E agrupe apenas mudancas da mesma finalidade
+E use mensagens curtas, em portugues e sem prefixo tecnico desnecessario
+```
+
+### 8. Validar se a solucao atende ao negocio
+
+```text
+Dado os requisitos do desafio e o estado atual da implementacao
+Quando eu pedir revalidacao de aderencia ao negocio
+Entao compare o que foi entregue com as premissas originais
+E destaque gaps, riscos e diferencas entre o proposto e o implementado
+E diga claramente o que esta aderente e o que ficou como melhoria futura
+```
+
+### 9. Revisar erros de tela
+
+```text
+Dado uma tela Angular com problema de layout, tipografia ou mensagem
+Quando eu pedir para ajustar a interface
+Entao preserve o design system ja usado
+E reduza ruido visual
+E valide a build do frontend depois da alteracao
+```
+
+### 10. Revisar segurança ou integracao externa
+
+```text
+Dado uma integracao externa, autenticacao ou fallback operacional
+Quando eu pedir para revisar resiliencia ou seguranca
+Entao explique o fluxo principal, fallback, logs e limites da solucao
+E nao invente camadas extras sem necessidade
+E diferencie o que esta implementado do que e melhoria futura
+```
+
+## Boas praticas para novos prompts
+
+- diga o objetivo em uma frase
+- informe os arquivos de referencia
+- diga o que nao pode mudar
+- se quiser refactor, diga se aceita ou nao alteracao de contrato
+- se quiser PR, diga que quer bloco Markdown copiavel
+- se quiser apenas analise, diga explicitamente para nao editar nada
+
+## Formato recomendado
+
+```text
+Contexto: <resumo curto>
+Objetivo: <o que precisa acontecer>
+Escopo: <arquivos, telas, modulos ou story>
+Restricoes: <o que nao pode ser alterado>
+Saida esperada: <analise, patch, resumo, PR, checklist>
+Validacao: <build, testes, leitura de artefatos, etc>
+```

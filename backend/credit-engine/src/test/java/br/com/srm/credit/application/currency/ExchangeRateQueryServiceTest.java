@@ -99,4 +99,39 @@ class ExchangeRateQueryServiceTest {
                 .hasMessage(CurrencyMessage.CURRENCY_NOT_FOUND.message());
         verifyNoMoreInteractions(exchangeRateCacheClient, exchangeRateJpaRepository);
     }
+
+    @Test
+    void shouldFailWhenToCurrencyDoesNotExist() {
+        when(currencyJpaRepository.existsById("USD")).thenReturn(true);
+        when(currencyJpaRepository.existsById("BRL")).thenReturn(false);
+
+        assertThatThrownBy(() -> service.resolve("USD", "BRL"))
+                .isInstanceOf(CurrencyBusinessException.class)
+                .hasMessage(CurrencyMessage.CURRENCY_NOT_FOUND.message());
+    }
+
+    @Test
+    void shouldFailWhenAnyCurrencyCodeIsNull() {
+        assertThatThrownBy(() -> service.resolve(null, "BRL"))
+                .isInstanceOf(CurrencyBusinessException.class)
+                .hasMessage(CurrencyMessage.EXCHANGE_RATE_NOT_FOUND.message());
+        assertThatThrownBy(() -> service.resolve("USD", null))
+                .isInstanceOf(CurrencyBusinessException.class)
+                .hasMessage(CurrencyMessage.EXCHANGE_RATE_NOT_FOUND.message());
+    }
+
+    @Test
+    void shouldTrimCurrencyCodesBeforeResolving() {
+        when(currencyJpaRepository.existsById("USD")).thenReturn(true);
+        when(currencyJpaRepository.existsById("BRL")).thenReturn(true);
+        when(exchangeRateCacheClient.get("USD", "BRL")).thenReturn(Optional.empty());
+        when(exchangeRateJpaRepository.findFirstByFromCurrencyCodeAndToCurrencyCodeAndSourceInOrderByQuotedAtDescIdDesc(
+                        "USD", "BRL", java.util.List.of(ExchangeRateSource.MANUAL, ExchangeRateSource.MOCK)))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.resolve(" usd ", " brl "))
+                .isInstanceOf(CurrencyBusinessException.class)
+                .hasMessage(CurrencyMessage.EXCHANGE_RATE_NOT_FOUND.message());
+        verify(exchangeRateCacheClient).get("USD", "BRL");
+    }
 }

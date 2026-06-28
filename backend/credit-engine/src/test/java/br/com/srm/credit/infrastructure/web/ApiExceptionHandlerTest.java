@@ -3,9 +3,18 @@ package br.com.srm.credit.infrastructure.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import br.com.srm.credit.domain.batch.BatchImportBusinessException;
+import br.com.srm.credit.domain.batch.BatchImportMessage;
+import br.com.srm.credit.domain.batch.BatchImportValidationException;
+import br.com.srm.credit.domain.currency.CurrencyBusinessException;
+import br.com.srm.credit.domain.currency.CurrencyMessage;
+import br.com.srm.credit.domain.currency.CurrencyValidationException;
 import br.com.srm.credit.domain.pricing.PricingBusinessException;
 import br.com.srm.credit.domain.pricing.PricingMessage;
 import br.com.srm.credit.domain.pricing.PricingValidationException;
+import br.com.srm.credit.domain.settlement.SettlementBusinessException;
+import br.com.srm.credit.domain.settlement.SettlementMessage;
+import br.com.srm.credit.domain.settlement.SettlementValidationException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.springframework.core.MethodParameter;
@@ -106,6 +115,43 @@ class ApiExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).extracting(ApiErrorResponse::message).isEqualTo("Credenciais inválidas.");
+    }
+
+    @Test
+    void shouldHandleCurrencyValidationAndBusinessExceptions() {
+        var validation = handler.handleCurrencyValidation(
+                new CurrencyValidationException(CurrencyMessage.CURRENCY_CODE_INVALID),
+                request("/api/v1/exchange-rates"));
+        var business = handler.handleCurrencyBusiness(
+                new CurrencyBusinessException(CurrencyMessage.CURRENCY_NOT_FOUND), request("/api/v1/exchange-rates"));
+
+        assertThat(validation.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(business.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
+    }
+
+    @Test
+    void shouldHandleSettlementValidationAndBusinessExceptions() {
+        var validation = handler.handleSettlementValidation(
+                new SettlementValidationException(SettlementMessage.OPERATION_REFERENCE_INVALID),
+                request("/api/v1/settlements"));
+        var business = handler.handleSettlementBusiness(
+                new SettlementBusinessException(SettlementMessage.OPERATION_NOT_FOUND), request("/api/v1/settlements"));
+
+        assertThat(validation.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(business.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
+    }
+
+    @Test
+    void shouldHandleBatchImportValidationAndBusinessExceptions() {
+        var validation = handler.handleBatchImportValidation(
+                new BatchImportValidationException(BatchImportMessage.BATCH_HEADER_INVALID),
+                request("/api/v1/batches/import"));
+        var business = handler.handleBatchImportBusiness(
+                new BatchImportBusinessException(BatchImportMessage.BATCH_ALREADY_EXISTS),
+                request("/api/v1/batches/import"));
+
+        assertThat(validation.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(business.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
     }
 
     private static MockHttpServletRequest request(String uri) {
