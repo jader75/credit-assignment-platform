@@ -33,6 +33,19 @@ export interface ExchangeRateRequest {
   source: 'MANUAL' | 'MOCK' | 'INTEGRATION';
 }
 
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  tokenType: string;
+  accessToken: string;
+  subject: string;
+  roles: string[];
+  expiresAt: string;
+}
+
 export interface PricingSimulationResponse {
   operationReference: string;
   receivablePricingRuleCode: string;

@@ -13,6 +13,7 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -95,6 +96,16 @@ class ApiExceptionHandlerTest {
         assertThat(response.getBody())
                 .extracting(ApiErrorResponse::message)
                 .isEqualTo("Não foi possível processar a requisição.");
+    }
+
+    @Test
+    void shouldHandleAuthenticationException() {
+        var response = handler.handleAuthenticationException(
+                new BadCredentialsException("bad credentials"), request("/auth/login"));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody()).extracting(ApiErrorResponse::message).isEqualTo("Credenciais inválidas.");
     }
 
     private static MockHttpServletRequest request(String uri) {

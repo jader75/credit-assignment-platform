@@ -15,6 +15,7 @@ import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -155,6 +156,18 @@ public class ApiExceptionHandler {
                 .log();
         return build(
                 HttpStatus.INTERNAL_SERVER_ERROR, "Não foi possível processar a requisição.", request.getRequestURI());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiErrorResponse> handleAuthenticationException(
+            AuthenticationException exception, HttpServletRequest request) {
+        StructuredLog.warn()
+                .step("auth")
+                .append("type", exception.getClass().getSimpleName())
+                .append("path", request.getRequestURI())
+                .append("reason", exception.getMessage())
+                .log();
+        return build(HttpStatus.UNAUTHORIZED, "Credenciais inválidas.", request.getRequestURI());
     }
 
     private static ResponseEntity<ApiErrorResponse> build(HttpStatus status, String message, String path) {

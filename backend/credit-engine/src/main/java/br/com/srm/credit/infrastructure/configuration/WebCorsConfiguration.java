@@ -16,5 +16,12 @@ public class WebCorsConfiguration implements WebMvcConfigurer {
                 .exposedHeaders("X-Correlation-Id", "X-Transaction-Id")
                 .allowCredentials(false)
                 .maxAge(3600);
+        registry.addMapping("/auth/**")
+                .allowedOrigins("http://localhost:4200", "http://127.0.0.1:4200")
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .exposedHeaders("X-Correlation-Id", "X-Transaction-Id")
+                .allowCredentials(false)
+                .maxAge(3600);
     }
 }
